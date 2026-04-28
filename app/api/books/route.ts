@@ -1,11 +1,10 @@
-//DEV
 import database from "@/app/lib/database/db";
-import { NextRequest, NextResponse } from "next/server";
-import { Member } from "@/app/types/Member";
+import { NextResponse } from "next/server";
+import { Books } from "@/app/types/Books";
 import { RowDataPacket } from "mysql2";
 
 export async function GET() {
-  const [rows] = await database.query<(Member & RowDataPacket)[]>(
+  const [rows] = await database.query<(Books & RowDataPacket)[]>(
     "SELECT * FROM members"
   );
 
