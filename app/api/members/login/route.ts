@@ -3,6 +3,8 @@ import { Member } from "@/app/types/Member";
 import { RowDataPacket } from "mysql2";
 import { NextRequest, NextResponse } from "next/server";
 
+import { signToken } from "@/app/lib/auth/auth";
+
 export async function POST(req: NextRequest ) {
   try {
     const { email , password } = await req.json()
@@ -21,26 +23,24 @@ export async function POST(req: NextRequest ) {
     if (Member.password !== password) {
       return NextResponse.json({ error: "Invalid password" }, { status: 400 })
     }
-
         // ✅ create session data
-    const sessionData = {
-      id: Member.id,
-      name: Member.name,
-    };
+    const token = signToken({
+      userId: Member.id,
+      email: Member.email,
+    })
+
 
     const response = NextResponse.json({ message: "Login success" })
     
-
     // 🔐 create a session cookie
-    response.cookies.set("session", JSON.stringify(sessionData), {
+    response.cookies.set("token", token, {
       httpOnly: true,   // cannot be accessed by JS (more secure)
       secure: false,    // true in production (HTTPS)
       path: "/",
       maxAge: 60 * 60 * 24, // 1 day
     })
 
-    return response
-    
+    return response;
 
   } catch (err) {
     return NextResponse.json( { message: "Invalid credentials", status: 401  })
