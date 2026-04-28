@@ -1,4 +1,4 @@
-import database from "@/app/lib/database/db";
+import database from "@/lib/database/db";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {

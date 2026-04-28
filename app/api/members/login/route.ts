@@ -1,9 +1,9 @@
-import database from "@/app/lib/database/db";
-import { Member } from "@/app/types/Member";
+import database from "@/lib/database/db";
+import { Member } from "@/types/Member";
 import { RowDataPacket } from "mysql2";
 import { NextRequest, NextResponse } from "next/server";
 
-import { signToken } from "@/app/lib/auth/auth";
+import { signToken } from "@/lib/auth/auth";
 
 export async function POST(req: NextRequest ) {
   try {
@@ -25,14 +25,13 @@ export async function POST(req: NextRequest ) {
     }
         // ✅ create session data
     const token = signToken({
-      userId: Member.id,
+      memberId: Member.id,
+      memberName: Member.name,
       email: Member.email,
     })
 
-
     const response = NextResponse.json({ message: "Login success" })
     
-    // 🔐 create a session cookie
     response.cookies.set("token", token, {
       httpOnly: true,   // cannot be accessed by JS (more secure)
       secure: false,    // true in production (HTTPS)

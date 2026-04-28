@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Library Management System",
+  title: "LiMS",
   description: "DBMS II Finals",
 };
 

@@ -24,7 +24,7 @@ export default function LoginPage() {
 
     if (res.ok) {
       console.log("Login success:", data)
-      router.push('/pages/dashboard')
+      router.push('/pages/homepage')
       
     } else {
       console.error("Login failed:", data)
