@@ -15,7 +15,7 @@ type Props = {
 
 export default async function ProfilePage({ params }: Props) {
 
-  const { memberId } = await  params
+  const { memberId } = await params
 
   const cookieStore = await cookies()
   const token = cookieStore.get("token")?.value

@@ -4,6 +4,6 @@ export interface Member {
   username: string;
   email: string;
   address: string;
-  created_At: string;
+  created_at: string;
   password: string;
 }

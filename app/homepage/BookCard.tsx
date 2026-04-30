@@ -12,10 +12,11 @@ export default function BookCard({ book, onClick }: Props) {
   return (
     <div
       onClick={onClick}
-      className="group bg-white rounded-2xl p-4 shadow-md hover:shadow-xl transition duration-300 border border-gray-100 flex flex-col h-full cursor-pointer"
+      // Removed p-4 from here, added overflow-hidden and rounded-lg
+      className="group bg-white shadow-md hover:shadow-xl transition duration-300 border border-gray-100 flex flex-col h-full cursor-pointer overflow-hidden rounded-lg"
     >
-      {/* Image wrapper (forces uniform size) */}
-      <div className="relative w-full aspect-[2/3] rounded-lg overflow-hidden">
+      {/* Image wrapper (flush to the edges) */}
+      <div className="relative w-full aspect-[2/3] overflow-hidden">
         <Image
           src={`/booksdb/${book.id}/cover.jpg`}
           alt={book.title}
@@ -28,37 +29,40 @@ export default function BookCard({ book, onClick }: Props) {
         />
       </div>
 
-      {/* Title */}
-      <h2 className="text-lg font-semibold text-gray-800 group-hover:text-blue-600 transition mt-3">
-        {book.title}
-      </h2>
+      {/* Info wrapper (padding is applied here to protect the text) */}
+      <div className="p-4 flex flex-col flex-grow">
+        {/* Title */}
+        <h2 className="text-lg font-semibold text-gray-800 group-hover:text-blue-600 transition">
+          {book.title}
+        </h2>
 
-      {/* Author */}
-      <p className="text-sm text-gray-500 mt-1">
-        by <span className="font-medium text-gray-700">{book.author}</span>
-      </p>
+        {/* Author */}
+        <p className="text-sm text-gray-500 mt-1">
+          by <span className="font-medium text-gray-700">{book.author}</span>
+        </p>
 
-      {/* Genre */}
-      <div className="mt-2 flex flex-wrap gap-2">
-        {book.genres.map((genre, index) => (
-          <span
-            key={index}
-            className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full hover:bg-blue-200 transition"
-          >
-            {genre}
-          </span>
-        ))}
+        {/* Genre */}
+        <div className="mt-3 flex flex-wrap gap-2">
+          {book.genres.map((genre, index) => (
+            <span
+              key={index}
+              className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full hover:bg-blue-200 transition"
+            >
+              {genre}
+            </span>
+          ))}
+        </div>
+
+        {/* Year */}
+        <p className="text-xs text-gray-400 mt-3">
+          Published: {book.year_published}
+        </p>
+
+        {/* Description */}
+        <p className="text-sm text-gray-600 mt-3 line-clamp-2">
+          {book.description}
+        </p>
       </div>
-
-      {/* Year */}
-      <p className="text-xs text-gray-400 mt-1">
-        Published: {book.year_published}
-      </p>
-
-      {/* Description */}
-      <p className="text-sm text-gray-600 mt-3 line-clamp-2">
-        {book.description}
-      </p>
     </div>
   )
 }
