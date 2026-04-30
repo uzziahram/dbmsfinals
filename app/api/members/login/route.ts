@@ -26,7 +26,7 @@ export async function POST(req: NextRequest ) {
         // ✅ create session data
     const token = signToken({
       memberId: Member.id,
-      memberName: Member.name,
+      memberUserName: Member.userName,
       email: Member.email,
     })
 
