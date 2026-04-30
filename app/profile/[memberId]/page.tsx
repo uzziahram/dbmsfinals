@@ -2,8 +2,10 @@ import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import { verifyToken } from "@/lib/auth/auth"
 import Payload from "@/types/Payload"
-import { User, BookOpen, LogOut } from "lucide-react"
+import { LogOut } from "lucide-react"
 import Link from "next/link"
+
+import ClientProfile from "@/app/profile/[memberId]/clientProfile"
 
 type Props = {
   params: {
@@ -13,9 +15,7 @@ type Props = {
 
 export default async function ProfilePage({ params }: Props) {
 
-  const { memberId } = await params
-  //===============> DEV PURPOSES
-  // console.log(params)
+  const { memberId } = await  params
 
   const cookieStore = await cookies()
   const token = cookieStore.get("token")?.value
@@ -45,45 +45,14 @@ export default async function ProfilePage({ params }: Props) {
   const memberIdFromParams = Number(memberId)
 
   if (memberIdFromParams !== memberIdFromToken) {
-    redirect("/homepage")
+    redirect("/login")
   }
 
   return (
     <div className="min-h-screen bg-gray-100 py-10">
-      <div className="max-w-4xl mx-auto px-6">
-
+      <div className="max-w-6xl mx-auto px-6">
         <div className="bg-white rounded-2xl shadow-md p-8">
-
-          <div className="flex items-center gap-4">
-            <div className="bg-blue-600 p-4 rounded-full text-white">
-              <User className="w-8 h-8" />
-            </div>
-
-            <div>
-              <h1 className="text-2xl font-bold text-gray-800">
-                {member.memberUserName}
-              </h1>
-              <p className="text-gray-500">Library Member</p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4 mt-8">
-            <div className="bg-gray-100 p-4 rounded-xl">
-              <div className="flex items-center gap-2 text-gray-600">
-                <BookOpen className="w-5 h-5" />
-                <span className="font-medium">Books Borrowed</span>
-              </div>
-              <p className="text-2xl font-bold mt-2">12</p>
-            </div>
-
-            <div className="bg-gray-100 p-4 rounded-xl">
-              <div className="flex items-center gap-2 text-gray-600">
-                <User className="w-5 h-5" />
-                <span className="font-medium">Member Since</span>
-              </div>
-              <p className="text-2xl font-bold mt-2"></p>
-            </div>
-          </div>
+          <ClientProfile memberId={memberIdFromToken} />
 
           <div className="mt-8 flex justify-between items-center">
             <Link href="/homepage" className="text-blue-600 hover:underline">
@@ -95,10 +64,9 @@ export default async function ProfilePage({ params }: Props) {
               Logout
             </button>
           </div>
-
         </div>
-
       </div>
     </div>
+
   )
 }

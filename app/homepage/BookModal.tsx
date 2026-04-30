@@ -10,9 +10,9 @@ type Props = {
 
 export default function BookModal({ book, onClose }: Props) {
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-6">
       
-      <div className="bg-white rounded-xl shadow-xl relative flex max-w-4xl w-auto overflow-hidden">
+      <div className="bg-white rounded-xl shadow-xl relative flex max-w-6xl w-full overflow-hidden">
 
         {/* Close Button */}
         <button
@@ -22,42 +22,42 @@ export default function BookModal({ book, onClose }: Props) {
           ✕
         </button>
 
-        {/* LEFT: IMAGE */}
-        <div className="relative w-[260px] sm:w-[300px] aspect-[2/3] flex-shrink-0">
+        {/* LEFT: IMAGE (bigger) */}
+        <div className="relative w-[340px] sm:w-[420px] aspect-[2/3] flex-shrink-0">
           <Image
             src={`/booksdb/${book.id}/cover.jpg`}
             alt={book.title}
             fill
             priority={book.id === 1}
-            sizes="300px"
+            sizes="420px"
             className="object-cover"
           />
         </div>
 
-        {/* RIGHT: DETAILS */}
-        <div className="p-6 flex flex-col justify-between w-[320px] sm:w-[380px]">
+        {/* RIGHT: DETAILS (bigger) */}
+        <div className="p-8 flex flex-col justify-between w-[420px] sm:w-[520px]">
           
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-3xl font-bold text-gray-900">
               {book.title}
             </h2>
 
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="text-sm text-gray-600 mt-2">
               by {book.author}
             </p>
 
-            <p className="mt-4 text-sm text-gray-700 leading-relaxed">
+            <p className="mt-5 text-sm text-gray-700 leading-relaxed">
               {book.description}
             </p>
           </div>
 
           {/* BUTTONS */}
-          <div className="mt-6 flex gap-2">
-            <button className="flex-1 px-3 py-2 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition cursor-pointer">
+         <div className="mt-8 flex flex-col sm:flex-row gap-3">
+            <button className="w-full sm:flex-1 px-5 py-3 text-sm sm:text-base bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition cursor-pointer">
               Borrow
             </button>
 
-            <button className="flex-1 px-3 py-2 text-sm bg-green-500 text-white rounded-lg hover:bg-green-600 transition cursor-pointer">
+            <button className="w-full sm:flex-1 px-5 py-3 text-sm sm:text-base bg-green-500 text-white rounded-lg hover:bg-green-600 transition cursor-pointer">
               Buy
             </button>
           </div>
