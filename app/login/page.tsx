@@ -7,7 +7,7 @@ export default async function LoginPage() {
   const token = cookieStore.get("token")?.value
 
   if (token) {
-    redirect("/pages/homepage")
+    redirect("/homepage")
   }
 
   return <LoginModal />

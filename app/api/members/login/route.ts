@@ -13,6 +13,7 @@ export async function POST(req: NextRequest ) {
       "SELECT * FROM members WHERE email = ?",
       [email]
     )
+    
 
     if (rows.length === 0) {
       return NextResponse.json({ error: "User not found" }, { status: 400 })
@@ -20,13 +21,15 @@ export async function POST(req: NextRequest ) {
 
     const Member = rows[0] as Member;
 
+    console.log(Member)
+
     if (Member.password !== password) {
       return NextResponse.json({ error: "Invalid password" }, { status: 400 })
     }
         // ✅ create session data
     const token = signToken({
-      memberId: Member.id,
-      memberUserName: Member.userName,
+      memberId: Member.id as number,
+      memberUserName: Member.username,
       email: Member.email,
     })
 

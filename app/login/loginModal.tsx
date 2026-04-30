@@ -25,7 +25,7 @@ export default function LoginModal() {
 
     if (res.ok) {
       console.log("Login success:", data)
-      router.push("/pages/homepage")
+      router.push("/homepage")
     } else {
       console.error("Login failed:", data)
     }

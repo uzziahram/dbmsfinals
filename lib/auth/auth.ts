@@ -3,7 +3,7 @@ import Payload from "@/types/Payload"
 
 const SECRET = process.env.JWT_SECRET!
 
-export function signToken(payload: object) {
+export function signToken(payload: Payload) {
   return jwt.sign(payload, SECRET, { expiresIn: "1d" })
 }
 
