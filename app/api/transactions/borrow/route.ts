@@ -35,11 +35,14 @@ export async function POST(request: Request) {
         throw new Error('This hardcopy is currently out of stock');
       }
 
-      // 2. Insert into borrow_logs
+      // --- NEW LOGIC: DETERMINE INITIAL STATUS based on format ---
+      const initialStatus = bookCopy.format === 'softcopy' ? 'borrowed' : 'pending';
+
+      // 2. Insert into borrow_logs (now including status)
       const [insertResult] = await connection.query<ResultSetHeader>(
-        `INSERT INTO borrow_logs (member_id, book_copy_id, max_extensions, due_date) 
-         VALUES (?, ?, ?, ?)`,
-        [member_id, book_copy_id, max_extensions, calculatedDueDate]
+        `INSERT INTO borrow_logs (member_id, book_copy_id, max_extensions, due_date, status) 
+         VALUES (?, ?, ?, ?, ?)`,
+        [member_id, book_copy_id, max_extensions, calculatedDueDate, initialStatus]
       );
 
       // 3. Decrement stock if it's a hardcopy
@@ -60,7 +63,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ 
         success: true, 
         message: 'Borrow request created successfully',
-        borrow_id: insertResult.insertId 
+        borrow_id: insertResult.insertId,
+        status: initialStatus // Optional: Returning the status to the client
       }, { status: 201 });
 
     } catch (error: any) {
