@@ -1,10 +1,9 @@
 import database from "@/lib/database/db";
 import { NextResponse } from "next/server";
-import { Books } from "@/types/Books"; // Adjust import path if needed
+import { Books } from "@/types/Books"; 
 import { BookCopy } from "@/types/BookCopy";
 import { RowDataPacket } from "mysql2";
 
-// Define the shape of the raw row coming back from MySQL
 interface RawBookRow extends RowDataPacket {
   id: number;
   title: string;

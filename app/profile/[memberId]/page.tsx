@@ -14,7 +14,6 @@ type Props = {
 }
 
 export default async function ProfilePage({ params }: Props) {
-
   const { memberId } = await params
 
   const cookieStore = await cookies()
@@ -32,20 +31,19 @@ export default async function ProfilePage({ params }: Props) {
 
   const member = memberVerification as Payload
 
-  //========> DEV PURPOSES
-  // console.log("PROFILE ROUTE HIT")
-  // console.log("params.memberId:", params.memberId)
-  // console.log("type:", typeof params.memberId)
-  // console.log("token memberId:", member.memberId)
-
-  // console.log(memberId)
-  //========>
-  
   const memberIdFromToken = Number(member.memberId)
   const memberIdFromParams = Number(memberId)
 
   if (memberIdFromParams !== memberIdFromToken) {
     redirect("/login")
+  }
+
+  // 1. Define the Server Action
+  async function logout() {
+    "use server" // This directive makes it a Server Action
+    const cookieStore = await cookies()
+    cookieStore.delete("token") // Delete the auth cookie
+    redirect("/login") // Redirect to the login page
   }
 
   return (
@@ -59,14 +57,19 @@ export default async function ProfilePage({ params }: Props) {
               ← Back to Dashboard
             </Link>
 
-            <button className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition">
-              <LogOut className="w-4 h-4" />
-              Logout
-            </button>
+            {/* 2. Wrap the button in a form that calls the Server Action */}
+            <form action={logout}>
+              <button 
+                type="submit" 
+                className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
+              >
+                <LogOut className="w-4 h-4" />
+                Logout
+              </button>
+            </form>
           </div>
         </div>
       </div>
     </div>
-
   )
 }

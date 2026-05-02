@@ -12,7 +12,7 @@ export async function GET(
   try {
     const { id } = await params
 
-    // 1. Get member info first (so we can early-return if not found)
+    // Get member info first (so we can early-return if not found)
     const [memberRows] = await database.query<(Member & RowDataPacket)[]>(
       `SELECT id, name, username, email, address, created_at
        FROM members

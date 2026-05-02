@@ -36,6 +36,12 @@ export default function ClientProfile({ memberId }: { memberId: number }) {
     day: "numeric",
   });
 
+  // Calculate only the active borrows 
+  // Adjust the condition (!book.returned_at) to match your specific database schema
+  const activeBorrowsCount = memberInfo.borrowed.filter(
+    (book: any) => !book.returned_at // e.g., book.status !== 'returned'
+  ).length;
+
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-8">
       {/* Header */}
@@ -59,7 +65,7 @@ export default function ClientProfile({ memberId }: { memberId: number }) {
             <BookOpen className="w-5 h-5" />
             <span className="font-medium">Active Borrows</span>
           </div>
-          <p className="text-3xl font-bold mt-2">{memberInfo.borrowed.length}</p>
+          <p className="text-3xl font-bold mt-2">{activeBorrowsCount}</p>
         </div>
 
         <div className="bg-green-50 border border-green-100 p-4 rounded-xl">
