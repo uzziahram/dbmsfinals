@@ -5,7 +5,13 @@ import { Books } from "@/types/Books"
 import BookCard from "./BookCard"
 import BookModal from "./BookModal"
 
-export default function BookShelves() {
+// 1. Define the props interface
+interface BookShelvesProps {
+  memberId: string; // Use 'string' if your Payload type defines memberId as a string
+}
+
+// 2. Destructure memberId from the props
+export default function BookShelves({ memberId }: BookShelvesProps) {
   const [books, setBooks] = useState<Books[]>([])
   const [selectedBook, setSelectedBook] = useState<Books | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -37,17 +43,17 @@ export default function BookShelves() {
           <BookCard
             key={book.id}
             book={book}
-            // Passes the whole book object, including the new "copies" array
             onClick={() => setSelectedBook(book)}
           />
         ))}
       </div>
 
-      {/* Modal - will now have access to selectedBook.copies */}
       {selectedBook && (
         <BookModal
           book={selectedBook}
           onClose={() => setSelectedBook(null)}
+          // 3. Pass it to the modal so your purchase function can use it
+          memberId={memberId} 
         />
       )}
     </section>

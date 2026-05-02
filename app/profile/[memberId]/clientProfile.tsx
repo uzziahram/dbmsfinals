@@ -1,9 +1,11 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import Image from "next/image"
 import { User, BookOpen, ShoppingBag, Clock, History } from "lucide-react"
 import MemberProfile from "@/types/MemberProfiles"
+
+import BorrowedBooks from "./borrowedBook" 
+import PurchasedBooks from "./purchasedBooks" 
 
 export default function ClientProfile({ memberId }: { memberId: number }) {
   const [memberInfo, setMemberInfo] = useState<MemberProfile | null>(null)
@@ -79,43 +81,9 @@ export default function ClientProfile({ memberId }: { memberId: number }) {
         <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
           <Clock className="w-5 h-5 text-orange-500" /> Borrowed History
         </h2>
-        {memberInfo.borrowed.length > 0 ? (
-          <div className="grid gap-3">
-            {memberInfo.borrowed.map((book: any) => (
-              <div key={book.id} className="flex justify-between items-center p-4 bg-white border rounded-lg shadow-sm">
-                
-                {/* Left Side: Image + Details */}
-                <div className="flex items-center gap-4">
-                  <div className="relative w-12 h-16 sm:w-16 sm:h-24 flex-shrink-0">
-                    <Image 
-                      src={`/booksdb/${book.book_id}/cover.jpg`} 
-                      alt={book.book_title}
-                      fill
-                      className="object-cover rounded shadow-sm border border-gray-200"
-                    />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-800">{book.book_title}</p>
-                    <p className="text-sm text-gray-500">Format: {book.format}</p>
-                  </div>
-                </div>
-
-                {/* Right Side: Status + Date */}
-                <div className="text-right flex-shrink-0">
-                  <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${
-                    book.status === 'overdue' ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600'
-                  }`}>
-                    {book.status}
-                  </span>
-                  <p className="text-xs text-gray-400 mt-1">Due: {new Date(book.due_date).toLocaleDateString()}</p>
-                </div>
-
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-gray-400 italic">No books currently borrowed.</p>
-        )}
+      
+        <BorrowedBooks books={memberInfo.borrowed} />
+        
       </section>
 
       {/* Purchased Books Section */}
@@ -123,39 +91,10 @@ export default function ClientProfile({ memberId }: { memberId: number }) {
         <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
           <History className="w-5 h-5 text-purple-500" /> Purchase History
         </h2>
-        {memberInfo.purchased.length > 0 ? (
-          <div className="grid gap-3">
-            {memberInfo.purchased.map((item) => (
-              <div key={item.id} className="flex justify-between items-center p-4 bg-white border rounded-lg shadow-sm">
-                
-                {/* Left Side: Image + Details */}
-                <div className="flex items-center gap-4">
-                  <div className="relative w-12 h-16 sm:w-16 sm:h-24 flex-shrink-0">
-                    <Image 
-                      src={`/booksdb/${item.book_id}/cover.jpg`} 
-                      alt={item.book_title}
-                      fill
-                      className="object-cover rounded shadow-sm border border-gray-200"
-                    />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-800">{item.book_title}</p>
-                    <p className="text-sm text-gray-500">Qty: {item.quantity} • {item.format}</p>
-                  </div>
-                </div>
-
-                {/* Right Side: Price + Date */}
-                <div className="text-right flex-shrink-0">
-                  <p className="font-bold text-green-600">₱{item.total_price.toFixed(2)}</p>
-                  <p className="text-xs text-gray-400">{new Date(item.purchased_at).toLocaleDateString()}</p>
-                </div>
-
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-gray-400 italic">No purchase history available.</p>
-        )}
+       
+        {/* Render the new component here */}
+        <PurchasedBooks books={memberInfo.purchased} />
+        
       </section>
     </div>
   )
