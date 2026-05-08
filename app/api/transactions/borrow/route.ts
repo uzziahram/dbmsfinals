@@ -38,14 +38,12 @@ export async function POST(request: Request) {
       // --- NEW LOGIC: DETERMINE INITIAL STATUS based on format ---
       const initialStatus = bookCopy.format === 'softcopy' ? 'borrowed' : 'pending';
 
-      // 2. Insert into borrow_logs (now including status)
       const [insertResult] = await connection.query<ResultSetHeader>(
         `INSERT INTO borrow_logs (member_id, book_copy_id, max_extensions, due_date, status) 
          VALUES (?, ?, ?, ?, ?)`,
         [member_id, book_copy_id, max_extensions, calculatedDueDate, initialStatus]
       );
 
-      // 3. Decrement stock if it's a hardcopy
       if (bookCopy.format === 'hardcopy') {
         const [updateResult] = await connection.query<ResultSetHeader>(
           'UPDATE book_copies SET stock = stock - 1 WHERE id = ? AND stock > 0',

@@ -24,7 +24,8 @@ export async function POST(req: NextRequest ) {
     console.log(Member)
 
     if (Member.password !== password) {
-      return NextResponse.json({ error: "Invalid password" }, { status: 400 })
+	console.log(Member.password, password)
+      	return NextResponse.json({ error: "Invalid password" }, { status: 400 })
     }
         // ✅ create session data
     const token = signToken({

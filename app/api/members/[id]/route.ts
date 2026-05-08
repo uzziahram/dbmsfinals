@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import database from "@/lib/database/db"
 import { Member } from "@/types/Member"
-import { BorrowedBook } from "@/types/BorrowedBook"
-import { PurchasedBook } from "@/types/PurchasedBook"
+import { BorrowedBook } from "@/types/BorrowedBooks"
+import { PurchasedBook } from "@/types/PurchasedBooks"
 import { RowDataPacket } from "mysql2"
 
 export async function GET(
@@ -41,7 +41,8 @@ export async function GET(
        FROM borrow_logs bl
        JOIN book_copies bc ON bl.book_copy_id = bc.id
        JOIN books b ON bc.book_id = b.id
-       WHERE bl.member_id = ?`,
+       WHERE bl.member_id = ?
+       ORDER BY bl.borrowed_at DESC`,
       [id]
     )
 
@@ -60,7 +61,8 @@ export async function GET(
        FROM purchase_logs pl
        JOIN book_copies bc ON pl.book_copy_id = bc.id
        JOIN books b ON bc.book_id = b.id
-       WHERE pl.member_id = ?`,
+       WHERE pl.member_id = ?
+       ORDER BY pl.purchased_at DESC`,
       [id]
     )
 

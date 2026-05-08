@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { BorrowedBook } from "@/types/BorrowedBook"; // Adjust import path as needed
+import { BorrowedBook } from "@/types/BorrowedBooks"; // Adjust import path as needed
 
 type BookStatus = "pending" | "borrowed" | "overdue" | "returned";
 
@@ -87,7 +87,6 @@ function BorrowedBookItem({ book }: { book: BorrowedBook }) {
             disabled={isUpdating}
             className={`px-2 py-1 rounded text-xs font-bold uppercase border cursor-pointer outline-none transition-opacity ${getStatusStyles(status)} ${isUpdating ? 'opacity-50' : 'hover:brightness-95'}`}
           >
-            <option value="pending">Pending</option>
             <option value="borrowed">Borrowed</option>
             {/* CONDITIONAL RENDER: Only show the "Overdue" option if the book is currently overdue */}
             {status === "overdue" && <option value="overdue">Overdue</option>}

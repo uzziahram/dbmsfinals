@@ -18,11 +18,9 @@ export async function POST(request: Request) {
       );
     }
 
-    // 2. Get a connection and start a transaction
     connection = await database.getConnection();
     await connection.beginTransaction();
 
-    // 3. Fetch book copy details, NOW INCLUDING 'price', and lock the row
     const [copies] = await connection.execute<RowDataPacket[]>(
       `SELECT format, stock, price FROM book_copies WHERE id = ? FOR UPDATE`,
       [book_copy_id]

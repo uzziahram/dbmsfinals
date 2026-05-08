@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { PurchasedBook } from "@/types/PurchasedBook";
+import { PurchasedBook } from "@/types/PurchasedBooks";
 
 interface PurchasedBooksProps {
   books: PurchasedBook[];

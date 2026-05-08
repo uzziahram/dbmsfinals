@@ -1,6 +1,6 @@
 import { Member } from "./Member"
-import { BorrowedBook } from "./BorrowedBook"
-import { PurchasedBook } from "./PurchasedBook"
+import { BorrowedBook } from "./BorrowedBooks"
+import { PurchasedBook } from "./PurchasedBooks"
 
 export default interface MemberProfile {
     member: Member

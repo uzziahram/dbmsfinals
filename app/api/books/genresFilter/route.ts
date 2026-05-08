@@ -1,5 +1,5 @@
 import database from "@/lib/database/db";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { Books } from "@/types/Books"; 
 import { BookCopy } from "@/types/BookCopy";
 import { RowDataPacket } from "mysql2";
@@ -14,9 +14,19 @@ interface RawBookRow extends RowDataPacket {
   copies: string | BookCopy[] | null;
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const [rows] = await database.query<RawBookRow[]>(`
+    // 1. Extract genres from the URL query parameters (e.g., ?genres=Fantasy,Sci-Fi)
+    const searchParams = request.nextUrl.searchParams;
+    const genresQuery = searchParams.get("genres");
+    
+    // Parse the comma-separated string into an array of strings
+    const selectedGenres = genresQuery 
+      ? genresQuery.split(",").map(g => g.trim()).filter(Boolean) 
+      : [];
+
+    // 2. Build the base query using explicit JOINs
+    let sqlQuery = `
       SELECT 
           b.id,
           b.title,
@@ -26,8 +36,9 @@ export async function GET() {
           
           (
               SELECT JSON_ARRAYAGG(g.name)
-              FROM book_genres bg, genres g
-              WHERE bg.book_id = b.id AND bg.genre_id = g.id
+              FROM book_genres bg
+              JOIN genres g ON bg.genre_id = g.id
+              WHERE bg.book_id = b.id
           ) AS genres,
           
           (
@@ -44,12 +55,33 @@ export async function GET() {
               WHERE bc.book_id = b.id
           ) AS copies
           
-      FROM books b, authors a
-      WHERE b.author_id = a.id
-      ORDER BY b.id;
-    `);
+      FROM books b
+      JOIN authors a ON b.author_id = a.id
+    `;
 
-    // Parse and map the raw rows to strictly match your Books interface
+    const queryParams: any[] = [];
+
+    // 3. Conditionally append a WHERE EXISTS clause if genres are provided
+    if (selectedGenres.length > 0) {
+      sqlQuery += `
+        WHERE (
+            SELECT COUNT(DISTINCT filter_g.name) 
+            FROM book_genres filter_bg
+            JOIN genres filter_g ON filter_bg.genre_id = filter_g.id
+            WHERE filter_bg.book_id = b.id 
+            AND filter_g.name IN (?)
+        ) = ?
+      `;
+      // Push the array of genres, AND the total number of genres required
+      queryParams.push(selectedGenres, selectedGenres.length); 
+    }
+
+    sqlQuery += ` ORDER BY b.id;`;
+
+    // 4. Execute the dynamically built query
+    const [rows] = await database.query<RawBookRow[]>(sqlQuery, queryParams);
+
+    // 5. Parse and map the raw rows to strictly match your Books interface
     const formattedRows: Books[] = rows.map((row) => {
       let parsedGenres: string[] = [];
       if (typeof row.genres === 'string') {
