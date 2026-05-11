@@ -4,7 +4,7 @@ import { redirect } from "next/navigation"
 import Payload from "@/types/Payload"
 import BookShelves from "@/app/homepage/BookShelves"
 import Link from "next/link"
-import { User, LogOut } from "lucide-react"
+import { User } from "lucide-react"
 
 export default async function Dashboard() {
   const cookieStore = await cookies()
@@ -18,7 +18,7 @@ export default async function Dashboard() {
   const member: Payload = memberVerification
 
   return (
-    <div className="min-h-screen bg-slate-50/50 py-12">
+    <div className="min-h-screen bg-white py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Header */}

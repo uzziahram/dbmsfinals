@@ -110,7 +110,7 @@ export default function LoginModal() {
 
           <div className="mt-8 pt-6 border-t border-slate-100 text-center">
             <p className="text-slate-500 text-sm">
-              Don't have an account?{" "}
+              Don&apos;t have an account?{" "}
               <Link href="/register" className="text-blue-600 font-bold hover:underline">
                 Create one now
               </Link>

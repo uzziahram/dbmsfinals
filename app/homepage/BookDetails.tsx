@@ -41,7 +41,7 @@ export function BookDetails({ book, hasCopies, onBorrow, onPurchase }: BookDetai
         <div className="h-px bg-slate-100 w-full my-8" />
 
         <p className="text-slate-600 leading-relaxed text-lg font-light italic">
-          "{book.description}"
+          &quot;{book.description}&quot;
         </p>
       </div>
 

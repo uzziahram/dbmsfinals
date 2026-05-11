@@ -2,7 +2,7 @@
 
 import type { Books } from "@/types/Books"
 import Image from "next/image"
-import { Calendar, BookOpen } from "lucide-react"
+import { Calendar } from "lucide-react"
 
 type Props = {
   book: Books
@@ -10,7 +10,6 @@ type Props = {
 }
 
 export default function BookCard({ book, onClick }: Props) {
-  const availableFormats = Array.from(new Set(book.copies?.map((copy) => copy.format) || []))
   const displayPrice = book.copies?.[0]?.price
 
   return (

@@ -1,10 +1,10 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Books } from "@/types/Books"
 import { BookCopy } from "@/types/BookCopy"
 import Image from "next/image"
-import { CheckCircle2, AlertCircle, X, ArrowLeft } from "lucide-react"
+import { CheckCircle2, AlertCircle, X } from "lucide-react"
 
 import { BookDetails } from "./BookDetails" 
 import { BookPurchaseView } from "./BookPurchaseView"
@@ -23,20 +23,26 @@ export default function BookModal({ book, onClose, memberId }: Props) {
     book.copies && book.copies.length > 0 ? book.copies[0] : null
   )
   const [quantity, setQuantity] = useState(1)
-  const [paymentAmount, setPaymentAmount] = useState<string>("")
+  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card' | 'e-wallet'>('cash')
   
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [changeAmount, setChangeAmount] = useState<string | null>(null)
 
-  useEffect(() => {
-    setError(null)
-  }, [paymentAmount, quantity, selectedCopy])
-
-  useEffect(() => {
+  const handleCopyChange = (copy: BookCopy) => {
+    setSelectedCopy(copy)
     setQuantity(1)
-    setPaymentAmount("")
-  }, [selectedCopy])
+    setError(null)
+  }
+
+  const handleQuantityChange = (qty: number) => {
+    setQuantity(qty)
+    setError(null)
+  }
+
+  const handlePaymentMethodChange = (method: 'cash' | 'card' | 'e-wallet') => {
+    setPaymentMethod(method)
+    setError(null)
+  }
 
   const hasCopies = book.copies && book.copies.length > 0
   const isOutOfStock = selectedCopy?.stock === 0
@@ -47,11 +53,8 @@ export default function BookModal({ book, onClose, memberId }: Props) {
     ? (quantity * Number(selectedCopy.price)).toFixed(2) 
     : "0.00"
 
-  const parsedPayment = parseFloat(paymentAmount) || 0
-  const isPaymentSufficient = parsedPayment >= parseFloat(totalPrice)
-
   const handlePurchaseSubmit = async () => {
-    if (!selectedCopy || !isPaymentSufficient) return;
+    if (!selectedCopy) return;
 
     setIsSubmitting(true);
     setError(null);
@@ -66,7 +69,8 @@ export default function BookModal({ book, onClose, memberId }: Props) {
           member_id: Number(memberId),
           book_copy_id: selectedCopy.id, 
           quantity: quantity,
-          payment_amount: parsedPayment,
+          payment_amount: parseFloat(totalPrice),
+          payment_method: paymentMethod,
         }),
       });
 
@@ -78,10 +82,9 @@ export default function BookModal({ book, onClose, memberId }: Props) {
         return;
       }
 
-      setChangeAmount(data.change_amount);
       setStep("success"); 
 
-    } catch (err) {
+    } catch {
       setError("An unexpected error occurred. Please check your connection.");
     } finally {
       setIsSubmitting(false);
@@ -116,7 +119,7 @@ export default function BookModal({ book, onClose, memberId }: Props) {
 
       setStep("borrow_success"); 
 
-    } catch (err) {
+    } catch {
       setError("An unexpected error occurred. Please check your connection.");
     } finally {
       setIsSubmitting(false);
@@ -169,15 +172,14 @@ export default function BookModal({ book, onClose, memberId }: Props) {
             <BookPurchaseView
               book={book}
               selectedCopy={selectedCopy}
-              setSelectedCopy={setSelectedCopy}
+              setSelectedCopy={handleCopyChange}
               quantity={quantity}
-              setQuantity={setQuantity}
-              paymentAmount={paymentAmount}
-              setPaymentAmount={setPaymentAmount}
+              setQuantity={handleQuantityChange}
+              paymentMethod={paymentMethod}
+              setPaymentMethod={handlePaymentMethodChange}
               maxStock={maxStock}
               isOutOfStock={isOutOfStock}
               totalPrice={totalPrice}
-              isPaymentSufficient={isPaymentSufficient}
               error={error}
               isSubmitting={isSubmitting}
               onBack={() => setStep("details")}
@@ -190,7 +192,7 @@ export default function BookModal({ book, onClose, memberId }: Props) {
             <BookBorrowView
               book={book}
               selectedCopy={selectedCopy}
-              setSelectedCopy={setSelectedCopy}
+              setSelectedCopy={handleCopyChange}
               isOutOfStock={isOutOfStock}
               error={error}
               isSubmitting={isSubmitting}
@@ -207,24 +209,35 @@ export default function BookModal({ book, onClose, memberId }: Props) {
                 <CheckCircle2 className="w-12 h-12" />
               </div>
               
-              <h2 className="text-3xl font-bold text-slate-900 mb-2">Order Confirmed</h2>
+              <h2 className="text-3xl font-bold text-slate-900 mb-2">
+                {paymentMethod === 'cash' ? "Order Confirmed" : "Payment Successful"}
+              </h2>
               <p className="text-slate-500 mb-8 font-medium">
-                You've successfully purchased {quantity} {selectedCopy?.format}(s) of <span className="text-slate-900">{book.title}</span>.
+                You&apos;ve successfully purchased {quantity} {selectedCopy?.format}(s) of <span className="text-slate-900">{book.title}</span>.
               </p>
 
-              <div className="bg-slate-50 border border-slate-100 p-8 rounded-[2rem] w-full mb-10 space-y-4">
-                <div className="flex justify-between text-slate-500 font-medium">
-                  <span>Total Cost</span>
-                  <span className="text-slate-900 font-bold">${totalPrice}</span>
+              {paymentMethod === 'cash' && (
+                <div className="bg-amber-50 border border-amber-200 p-4 rounded-2xl w-full mb-6">
+                  <p className="text-amber-800 text-sm font-bold flex items-center gap-3 justify-center text-center">
+                    <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                    Please go to the librarian to pay and receive your book copy.
+                  </p>
                 </div>
-                <div className="flex justify-between text-slate-500 font-medium">
-                  <span>Amount Paid</span>
-                  <span className="text-slate-900 font-bold">${parsedPayment.toFixed(2)}</span>
+              )}
+
+              {paymentMethod !== 'cash' && selectedCopy?.format === 'hardcopy' && (
+                <div className="bg-green-50 border border-green-100 p-4 rounded-2xl w-full mb-6">
+                  <p className="text-green-800 text-sm font-bold flex items-center gap-3 justify-center text-center">
+                    <AlertCircle className="w-5 h-5 flex-shrink-0 text-green-600" />
+                    Please go to the librarian so that they can give you your book.
+                  </p>
                 </div>
-                <div className="h-px bg-slate-200 w-full my-2"></div>
-                <div className="flex justify-between items-baseline">
-                  <span className="font-bold text-slate-900">Your Change</span>
-                  <span className="text-2xl font-black text-green-600">${changeAmount}</span>
+              )}
+
+              <div className="bg-green-50 border border-green-100 p-8 rounded-[2rem] w-full mb-10 space-y-4">
+                <div className="flex justify-between items-center text-green-700 font-medium">
+                  <span className="text-lg">Total Cost</span>
+                  <span className="text-3xl font-black text-slate-900 tracking-tighter">${totalPrice}</span>
                 </div>
               </div>
 
@@ -248,6 +261,15 @@ export default function BookModal({ book, onClose, memberId }: Props) {
               <p className="text-slate-500 mb-8 font-medium">
                 You now have access to <span className="text-slate-900">{book.title}</span> ({selectedCopy?.format}).
               </p>
+
+              {selectedCopy?.format === 'hardcopy' && (
+                <div className="bg-blue-50 border border-blue-100 p-4 rounded-2xl w-full mb-6">
+                  <p className="text-blue-700 text-sm font-bold flex items-center gap-3 justify-center text-center">
+                    <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                    Please go to the librarian so that they can give you your book.
+                  </p>
+                </div>
+              )}
 
               <div className="bg-blue-50 border border-blue-100 p-6 rounded-2xl w-full mb-10">
                   <p className="text-blue-700 text-sm font-semibold flex items-center gap-2 justify-center">

@@ -8,10 +8,10 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     
-    const { member_id, book_copy_id, quantity, payment_amount } = body;
+    const { member_id, book_copy_id, quantity, payment_amount, payment_method } = body;
 
     // 1. Basic validation
-    if (!member_id || !book_copy_id || !quantity || payment_amount === undefined) {
+    if (!member_id || !book_copy_id || !quantity || payment_amount === undefined || !payment_method) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -36,8 +36,8 @@ export async function POST(request: Request) {
     // 4. Calculate total price server-side (Unit Price * Quantity)
     const calculated_total_price = Number(bookCopy.price) * quantity;
 
-    // 5. Verify payment amount against the server-calculated total
-    if (payment_amount < calculated_total_price) {
+    // 5. Verify payment amount against the server-calculated total (only for digital payments)
+    if (payment_method !== 'cash' && payment_amount < calculated_total_price) {
       await connection.rollback();
       return NextResponse.json(
         { 
@@ -49,8 +49,8 @@ export async function POST(request: Request) {
       );
     }
 
-    // Calculate change. Using toFixed(2) to prevent JavaScript floating-point errors (e.g., 21.18 - 20.00 = 1.1799999999999997)
-    const raw_change = payment_amount - calculated_total_price;
+    // Calculate change. For cash, change is handled by the librarian (recorded as 0 here)
+    const raw_change = payment_method === 'cash' ? 0 : (payment_amount - calculated_total_price);
     const change_amount = Number(raw_change.toFixed(2));
 
     // 6. Check and deduct stock (only for hardcopies)
@@ -72,9 +72,9 @@ export async function POST(request: Request) {
     // 7. Create the purchase log using the server-calculated price
     const [insertResult] = await connection.execute<ResultSetHeader>(
       `INSERT INTO purchase_logs 
-        (member_id, book_copy_id, quantity, total_price, payment_amount, change_amount) 
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [member_id, book_copy_id, quantity, calculated_total_price, payment_amount, change_amount]
+        (member_id, book_copy_id, quantity, total_price, payment_amount, change_amount, payment_method) 
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [member_id, book_copy_id, quantity, calculated_total_price, payment_amount, change_amount, payment_method]
     );
 
     // 8. Commit the transaction

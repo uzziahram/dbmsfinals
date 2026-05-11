@@ -80,8 +80,6 @@ export default function BookShelves({ memberId }: BookShelvesProps) {
     const controller = new AbortController()
     let isActive = true
     
-    setIsLoading(true)
-    
     getBooks(selectedGenres, activeQuery, controller.signal).then((data) => {
       if (isActive) {
         setBooks(data)
@@ -96,6 +94,7 @@ export default function BookShelves({ memberId }: BookShelvesProps) {
   }, [selectedGenres, activeQuery])
 
   const toggleGenre = (genre: string) => {
+    setIsLoading(true)
     setSelectedGenres((prev) => 
       prev.includes(genre) 
         ? prev.filter((g) => g !== genre)
@@ -107,13 +106,14 @@ export default function BookShelves({ memberId }: BookShelvesProps) {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
+    setIsLoading(true)
     setActiveQuery(searchInput)
     setSelectedGenres([])
   }
 
   return (
     <section>
-      <div className="mb-10 flex flex-col md:flex-row gap-4 items-center justify-between bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+      <div className="mb-10 flex flex-col md:flex-row gap-4 items-center justify-between bg-slate-50 p-4 rounded-2xl border border-slate-200 shadow-sm">
         
         {/* Search Form */}
         <form onSubmit={handleSearch} className="flex w-full md:max-w-md gap-2">
