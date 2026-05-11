@@ -1,0 +1,196 @@
+SQL QUERIES IN THE CODEBASE
+
+--- File: app/api/books/genres/route.ts ---
+SELECT id, name 
+FROM genres 
+ORDER BY name ASC
+
+--- File: app/api/books/genresFilter/route.ts ---
+SELECT 
+    b.id,
+    b.title,
+    a.name AS author,
+    b.description,
+    b.published_year AS year_published,
+    
+    (
+        SELECT JSON_ARRAYAGG(g.name)
+        FROM book_genres bg
+        JOIN genres g ON bg.genre_id = g.id
+        WHERE bg.book_id = b.id
+    ) AS genres,
+    
+    (
+        SELECT JSON_ARRAYAGG(
+            JSON_OBJECT(
+                'id', bc.id,
+                'format', bc.format,
+                'stock', bc.stock,
+                'file_path', bc.file_path,
+                'price', bc.price
+            )
+        )
+        FROM book_copies bc
+        WHERE bc.book_id = b.id
+    ) AS copies
+    
+FROM books b
+JOIN authors a ON b.author_id = a.id
+[WHERE (
+    SELECT COUNT(DISTINCT filter_g.name) 
+    FROM book_genres filter_bg
+    JOIN genres filter_g ON filter_bg.genre_id = filter_g.id
+    WHERE filter_bg.book_id = b.id 
+    AND filter_g.name IN (?)
+) = ?]
+ORDER BY b.id;
+
+--- File: app/api/books/route.ts ---
+SELECT 
+    b.id,
+    b.title,
+    a.name AS author,
+    b.description,
+    b.published_year AS year_published,
+    
+    (
+        SELECT JSON_ARRAYAGG(g.name)
+        FROM book_genres bg, genres g
+        WHERE bg.book_id = b.id AND bg.genre_id = g.id
+    ) AS genres,
+    
+    (
+        SELECT JSON_ARRAYAGG(
+            JSON_OBJECT(
+                'id', bc.id,
+                'format', bc.format,
+                'stock', bc.stock,
+                'file_path', bc.file_path,
+                'price', bc.price
+            )
+        )
+        FROM book_copies bc
+        WHERE bc.book_id = b.id
+    ) AS copies
+    
+FROM books b, authors a
+WHERE b.author_id = a.id
+ORDER BY b.id;
+
+--- File: app/api/books/search/route.ts ---
+SELECT 
+    b.id, 
+    b.title, 
+    b.description, 
+    b.published_year AS year_published,
+    a.name AS author,
+    
+    (
+        SELECT JSON_ARRAYAGG(g.name)
+        FROM book_genres bg
+        JOIN genres g ON bg.genre_id = g.id
+        WHERE bg.book_id = b.id
+    ) AS genres,
+    
+    (
+        SELECT JSON_ARRAYAGG(
+            JSON_OBJECT(
+                'id', bc.id,
+                'format', bc.format,
+                'stock', bc.stock,
+                'file_path', bc.file_path,
+                'price', bc.price
+            )
+        )
+        FROM book_copies bc
+        WHERE bc.book_id = b.id
+    ) AS copies
+    
+ FROM books b
+ LEFT JOIN authors a ON b.author_id = a.id
+ WHERE 
+    b.title LIKE ? OR 
+    a.name LIKE ? OR 
+    EXISTS (
+        SELECT 1 
+        FROM book_genres search_bg
+        JOIN genres search_g ON search_bg.genre_id = search_g.id
+        WHERE search_bg.book_id = b.id AND search_g.name LIKE ?
+    )
+ ORDER BY b.published_year DESC
+
+--- File: app/api/members/[id]/route.ts ---
+SELECT id, name, username, email, address, created_at
+FROM members
+WHERE id = ?
+
+SELECT 
+    bl.id,
+    bl.book_copy_id,
+    bl.status,
+    bl.borrowed_at,
+    bl.due_date,
+    bl.returned_at,
+    bc.book_id,
+    bc.format,
+    b.title AS book_title
+FROM borrow_logs bl
+JOIN book_copies bc ON bl.book_copy_id = bc.id
+JOIN books b ON bc.book_id = b.id
+WHERE bl.member_id = ?
+ORDER BY bl.borrowed_at DESC
+
+SELECT 
+    pl.id,
+    pl.book_copy_id,
+    pl.quantity,
+    pl.total_price,
+    pl.payment_amount,
+    pl.change_amount,
+    pl.purchased_at,
+    bc.book_id,
+    bc.format,
+    b.title AS book_title
+FROM purchase_logs pl
+JOIN book_copies bc ON pl.book_copy_id = bc.id
+JOIN books b ON bc.book_id = b.id
+WHERE pl.member_id = ?
+ORDER BY pl.purchased_at DESC
+
+--- File: app/api/members/getAllmembers/route.ts ---
+SELECT *
+FROM members
+ORDER BY created_at DESC
+
+--- File: app/api/members/login/route.ts ---
+SELECT * FROM members WHERE email = ?
+
+--- File: app/api/members/register/route.ts ---
+INSERT INTO members (name, username, email, password, address) VALUES (?, ?, ?, ?, ?)
+
+--- File: app/api/transactions/borrow/route.ts ---
+SELECT format, stock FROM book_copies WHERE id = ? FOR UPDATE
+
+INSERT INTO borrow_logs (member_id, book_copy_id, max_extensions, due_date, status) 
+VALUES (?, ?, ?, ?, ?)
+
+UPDATE book_copies SET stock = stock - 1 WHERE id = ? AND stock > 0
+
+--- File: app/api/transactions/purchase/route.ts ---
+SELECT format, stock, price FROM book_copies WHERE id = ? FOR UPDATE
+
+UPDATE book_copies SET stock = stock - ? WHERE id = ?
+
+INSERT INTO purchase_logs 
+(member_id, book_copy_id, quantity, total_price, payment_amount, change_amount) 
+VALUES (?, ?, ?, ?, ?, ?)
+
+--- File: app/api/transactions/borrow_update/route.ts ---
+UPDATE borrow_logs 
+SET 
+  status = ?, 
+  returned_at = CASE 
+                  WHEN ? = 'returned' THEN CURRENT_TIMESTAMP 
+                  ELSE returned_at 
+                END
+WHERE id = ?;

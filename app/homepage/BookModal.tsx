@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Books } from "@/types/Books"
 import { BookCopy } from "@/types/BookCopy"
 import Image from "next/image"
-import { CheckCircle2, AlertCircle } from "lucide-react"
+import { CheckCircle2, AlertCircle, X, ArrowLeft } from "lucide-react"
 
 import { BookDetails } from "./BookDetails" 
 import { BookPurchaseView } from "./BookPurchaseView"
@@ -17,8 +17,6 @@ type Props = {
 }
 
 export default function BookModal({ book, onClose, memberId }: Props) {
- 
-  // Added "borrow" and "borrow_success" states
   const [step, setStep] = useState<"details" | "purchase" | "success" | "borrow" | "borrow_success">("details")
   
   const [selectedCopy, setSelectedCopy] = useState<BookCopy | null>(
@@ -27,12 +25,10 @@ export default function BookModal({ book, onClose, memberId }: Props) {
   const [quantity, setQuantity] = useState(1)
   const [paymentAmount, setPaymentAmount] = useState<string>("")
   
-  // UI Feedback states
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [changeAmount, setChangeAmount] = useState<string | null>(null)
 
-  // Clear errors when the user changes inputs
   useEffect(() => {
     setError(null)
   }, [paymentAmount, quantity, selectedCopy])
@@ -54,7 +50,6 @@ export default function BookModal({ book, onClose, memberId }: Props) {
   const parsedPayment = parseFloat(paymentAmount) || 0
   const isPaymentSufficient = parsedPayment >= parseFloat(totalPrice)
 
-  // --- PURCHASE LOGIC ---
   const handlePurchaseSubmit = async () => {
     if (!selectedCopy || !isPaymentSufficient) return;
 
@@ -87,14 +82,12 @@ export default function BookModal({ book, onClose, memberId }: Props) {
       setStep("success"); 
 
     } catch (err) {
-      console.error("Network or unexpected error during purchase:", err);
       setError("An unexpected error occurred. Please check your connection.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // --- BORROW LOGIC ---
   const handleBorrowSubmit = async () => {
     if (!selectedCopy) return;
 
@@ -102,7 +95,6 @@ export default function BookModal({ book, onClose, memberId }: Props) {
     setError(null);
 
     try {
-      // Assuming your provided API route is saved at /api/transactions/borrow
       const response = await fetch('/api/transactions/borrow', { 
         method: 'POST',
         headers: {
@@ -111,7 +103,6 @@ export default function BookModal({ book, onClose, memberId }: Props) {
         body: JSON.stringify({
           member_id: Number(memberId),
           book_copy_id: selectedCopy.id, 
-          // Defaulting to API's 14-day calculation by not passing due_date
         }),
       });
 
@@ -126,7 +117,6 @@ export default function BookModal({ book, onClose, memberId }: Props) {
       setStep("borrow_success"); 
 
     } catch (err) {
-      console.error("Network or unexpected error during borrow:", err);
       setError("An unexpected error occurred. Please check your connection.");
     } finally {
       setIsSubmitting(false);
@@ -136,31 +126,32 @@ export default function BookModal({ book, onClose, memberId }: Props) {
   const isSuccessStep = step === "success" || step === "borrow_success";
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-6">
-      <div className="bg-white rounded-xl shadow-xl relative flex max-w-6xl w-full overflow-hidden min-h-[500px]">
+    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4 sm:p-6 animate-in fade-in duration-300">
+      <div className="bg-white rounded-[2.5rem] shadow-2xl shadow-slate-900/20 relative flex max-w-5xl w-full overflow-hidden min-h-[500px] border border-slate-100">
         
         <button
           onClick={onClose}
-          className="absolute top-2 right-3 text-gray-500 hover:text-black text-xl z-10"
+          className="absolute top-6 right-6 p-2 rounded-full bg-slate-100 text-slate-400 hover:text-slate-900 hover:bg-slate-200 transition-all z-20 cursor-pointer"
         >
-          ✕
+          <X className="w-5 h-5" />
         </button>
 
         {/* LEFT: IMAGE */}
         {!isSuccessStep && (
-          <div className="relative w-[340px] sm:w-[420px] aspect-[2/3] flex-shrink-0 hidden md:block">
+          <div className="relative w-[340px] lg:w-[400px] aspect-[2/3] flex-shrink-0 hidden md:block group overflow-hidden">
             <Image
               src={`/booksdb/${book.id}/cover.jpg`}
               alt={book.title}
               fill
-              sizes="(max-width: 768px) 0vw, 420px"
-              className="object-cover"
+              sizes="(max-width: 768px) 0vw, 400px"
+              className="object-cover group-hover:scale-105 transition-transform duration-700"
             />
+            <div className="absolute inset-0 bg-gradient-to-r from-slate-900/10 to-transparent" />
           </div>
         )}
 
         {/* RIGHT: DYNAMIC CONTENT */}
-        <div className={`p-10 flex flex-col justify-center w-full ${isSuccessStep ? "md:w-full items-center" : "md:w-[520px]"}`}>
+        <div className={`p-8 sm:p-12 flex flex-col w-full ${isSuccessStep ? "md:w-full items-center justify-center text-center" : "md:flex-grow justify-center"}`}>
           
          {/* --- STEP 1: DETAILS --- */}
          {step === "details" && (
@@ -211,63 +202,65 @@ export default function BookModal({ book, onClose, memberId }: Props) {
 
           {/* --- STEP 3.A: PURCHASE SUCCESS UI --- */}
           {step === "success" && (
-             /* Your existing purchase success UI here */
-            <div className="animate-in zoom-in-95 duration-500 flex flex-col items-center justify-center text-center max-w-md w-full py-8">
-              <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-6">
+            <div className="animate-in zoom-in-95 duration-500 flex flex-col items-center max-w-md w-full">
+              <div className="w-24 h-24 bg-green-50 text-green-600 rounded-full flex items-center justify-center mb-8 shadow-inner">
                 <CheckCircle2 className="w-12 h-12" />
               </div>
               
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">Purchase Successful!</h2>
-              <p className="text-gray-500 mb-8">
-                You bought {quantity} {selectedCopy?.format}(s) of <span className="font-semibold text-gray-700">{book.title}</span>.
+              <h2 className="text-3xl font-bold text-slate-900 mb-2">Order Confirmed</h2>
+              <p className="text-slate-500 mb-8 font-medium">
+                You've successfully purchased {quantity} {selectedCopy?.format}(s) of <span className="text-slate-900">{book.title}</span>.
               </p>
 
-              <div className="bg-gray-50 border border-gray-100 p-6 rounded-xl w-full mb-8 space-y-3">
-                <div className="flex justify-between text-gray-600">
+              <div className="bg-slate-50 border border-slate-100 p-8 rounded-[2rem] w-full mb-10 space-y-4">
+                <div className="flex justify-between text-slate-500 font-medium">
                   <span>Total Cost</span>
-                  <span className="font-medium text-gray-900">${totalPrice}</span>
+                  <span className="text-slate-900 font-bold">${totalPrice}</span>
                 </div>
-                <div className="flex justify-between text-gray-600">
+                <div className="flex justify-between text-slate-500 font-medium">
                   <span>Amount Paid</span>
-                  <span className="font-medium text-gray-900">${parsedPayment.toFixed(2)}</span>
+                  <span className="text-slate-900 font-bold">${parsedPayment.toFixed(2)}</span>
                 </div>
-                <div className="h-px bg-gray-200 w-full my-2"></div>
-                <div className="flex justify-between text-lg">
-                  <span className="font-semibold text-gray-900">Your Change</span>
-                  <span className="font-bold text-green-600">${changeAmount}</span>
+                <div className="h-px bg-slate-200 w-full my-2"></div>
+                <div className="flex justify-between items-baseline">
+                  <span className="font-bold text-slate-900">Your Change</span>
+                  <span className="text-2xl font-black text-green-600">${changeAmount}</span>
                 </div>
               </div>
 
               <button 
                 onClick={onClose}
-                className="w-full py-4 bg-gray-900 text-white font-bold rounded-lg hover:bg-gray-800 transition shadow-lg"
+                className="w-full py-4 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition shadow-xl shadow-blue-100 cursor-pointer"
               >
-                Done
+                Return to Library
               </button>
             </div>
           )}
 
           {/* --- STEP 3.B: BORROW SUCCESS UI --- */}
           {step === "borrow_success" && (
-            <div className="animate-in zoom-in-95 duration-500 flex flex-col items-center justify-center text-center max-w-md w-full py-8">
-              <div className="w-20 h-20 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-6">
+            <div className="animate-in zoom-in-95 duration-500 flex flex-col items-center max-w-md w-full">
+              <div className="w-24 h-24 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-8 shadow-inner">
                 <CheckCircle2 className="w-12 h-12" />
               </div>
               
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">Borrow Successful!</h2>
-              <p className="text-gray-500 mb-8">
-                You have successfully borrowed a <span className="font-semibold">{selectedCopy?.format}</span> copy of <span className="font-semibold text-gray-700">{book.title}</span>.
+              <h2 className="text-3xl font-bold text-slate-900 mb-2">Borrowing Complete</h2>
+              <p className="text-slate-500 mb-8 font-medium">
+                You now have access to <span className="text-slate-900">{book.title}</span> ({selectedCopy?.format}).
               </p>
 
-              <div className="bg-blue-50 border border-blue-100 p-4 rounded-xl w-full mb-8">
-                  <p className="text-blue-800 text-sm font-medium">Please return or renew it within 14 days.</p>
+              <div className="bg-blue-50 border border-blue-100 p-6 rounded-2xl w-full mb-10">
+                  <p className="text-blue-700 text-sm font-semibold flex items-center gap-2 justify-center">
+                    <AlertCircle className="w-4 h-4" />
+                    Please return it within 14 days.
+                  </p>
               </div>
 
               <button 
                 onClick={onClose}
-                className="w-full py-4 bg-gray-900 text-white font-bold rounded-lg hover:bg-gray-800 transition shadow-lg"
+                className="w-full py-4 bg-slate-900 text-white font-bold rounded-2xl hover:bg-black transition shadow-xl shadow-slate-200 cursor-pointer"
               >
-                Done
+                Back to Dashboard
               </button>
             </div>
           )}

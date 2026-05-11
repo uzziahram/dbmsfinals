@@ -14,20 +14,17 @@ export async function POST(req: NextRequest ) {
       [email]
     )
     
-
     if (rows.length === 0) {
-      return NextResponse.json({ error: "User not found" }, { status: 400 })
+      return NextResponse.json({ message: "User not found. Please check your email or register." }, { status: 400 })
     }
 
     const Member = rows[0] as Member;
 
-    console.log(Member)
-
     if (Member.password !== password) {
-	console.log(Member.password, password)
-      	return NextResponse.json({ error: "Invalid password" }, { status: 400 })
+      return NextResponse.json({ message: "Invalid password. Please try again." }, { status: 400 })
     }
-        // ✅ create session data
+
+    // ✅ create session data
     const token = signToken({
       memberId: Member.id as number,
       memberUserName: Member.username,
@@ -37,15 +34,16 @@ export async function POST(req: NextRequest ) {
     const response = NextResponse.json({ message: "Login success" })
     
     response.cookies.set("token", token, {
-      httpOnly: true,   // cannot be accessed by JS (more secure)
-      secure: false,    // true in production (HTTPS)
+      httpOnly: true,
+      secure: false,
       path: "/",
       maxAge: 60 * 60 * 24, // 1 day
     })
 
     return response;
 
-  } catch (err) {
-    return NextResponse.json( { message: "Invalid credentials", status: 401  })
+  } catch (err: any) {
+    console.error("Login error:", err);
+    return NextResponse.json({ message: "An unexpected error occurred. Please try again." }, { status: 500 })
   }
 }

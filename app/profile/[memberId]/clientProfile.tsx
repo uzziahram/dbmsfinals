@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { User, BookOpen, ShoppingBag, Clock, History } from "lucide-react"
+import { User, BookOpen, ShoppingBag, Clock, History, Mail, Calendar } from "lucide-react"
 import MemberProfile from "@/types/MemberProfiles"
 
 import BorrowedBooks from "./borrowedBook" 
@@ -27,8 +27,16 @@ export default function ClientProfile({ memberId }: { memberId: number }) {
     fetchMember()
   }, [memberId])
 
-  if (loading) return <p className="p-8 text-center text-gray-500">Loading profile...</p>
-  if (!memberInfo) return <p className="p-8 text-center text-red-500">Failed to load profile.</p>
+  if (loading) return (
+    <div className="flex flex-col items-center justify-center py-20 gap-4">
+      <div className="w-10 h-10 border-4 border-blue-600/20 border-t-blue-600 rounded-full animate-spin" />
+      <p className="text-slate-500 font-medium">Loading your profile...</p>
+    </div>
+  )
+  
+  if (!memberInfo) return (
+    <div className="py-20 text-center text-red-500 font-medium">Failed to load profile.</div>
+  )
 
   const dateJoined = new Date(memberInfo.member.created_at).toLocaleDateString("en-PH", {
     year: "numeric",
@@ -36,72 +44,91 @@ export default function ClientProfile({ memberId }: { memberId: number }) {
     day: "numeric",
   });
 
-  // Calculate only the active borrows 
-  // Adjust the condition (!book.returned_at) to match your specific database schema
   const activeBorrowsCount = memberInfo.borrowed.filter(
-    (book: any) => !book.returned_at // e.g., book.status !== 'returned'
+    (book: any) => !book.returned_at
   ).length;
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-8">
+    <div className="p-8 sm:p-12 space-y-12">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <div className="bg-blue-600 p-4 rounded-full text-white shadow-lg">
-          <User className="w-8 h-8" />
+      <div className="flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
+        <div className="bg-blue-600 w-24 h-24 rounded-[2rem] flex items-center justify-center text-white shadow-xl shadow-blue-100 flex-shrink-0">
+          <User className="w-10 h-10" />
         </div>
 
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">
+        <div className="flex-grow">
+          <h1 className="text-4xl font-bold text-slate-900 tracking-tight">
             {memberInfo.member.name}
           </h1>
-          <p className="text-gray-500">@{memberInfo.member.username} • {memberInfo.member.email}</p>
+          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 mt-2 text-slate-500 font-medium">
+            <div className="flex items-center gap-1.5">
+              <span className="text-blue-600">@</span>
+              {memberInfo.member.username}
+            </div>
+            <div className="w-1 h-1 bg-slate-300 rounded-full hidden sm:block" />
+            <div className="flex items-center gap-1.5">
+              <Mail className="w-4 h-4" />
+              {memberInfo.member.email}
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-slate-50 px-6 py-4 rounded-2xl border border-slate-100 hidden lg:block">
+          <div className="flex items-center gap-2 text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">
+            <Calendar className="w-3.5 h-3.5" />
+            Member Since
+          </div>
+          <p className="text-slate-700 font-bold">{dateJoined}</p>
         </div>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-blue-50 border border-blue-100 p-4 rounded-xl">
-          <div className="flex items-center gap-2 text-blue-700">
-            <BookOpen className="w-5 h-5" />
-            <span className="font-medium">Active Borrows</span>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="group bg-blue-50/50 border border-blue-100/50 p-8 rounded-[2rem] hover:bg-blue-50 hover:border-blue-200 transition-all">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 bg-white rounded-2xl shadow-sm text-blue-600 group-hover:scale-110 transition-transform">
+              <BookOpen className="w-6 h-6" />
+            </div>
+            <span className="text-xs font-bold text-blue-400 uppercase tracking-widest">Active</span>
           </div>
-          <p className="text-3xl font-bold mt-2">{activeBorrowsCount}</p>
+          <p className="text-slate-500 font-medium">Borrowed Books</p>
+          <p className="text-5xl font-black text-slate-900 mt-1">{activeBorrowsCount}</p>
         </div>
 
-        <div className="bg-green-50 border border-green-100 p-4 rounded-xl">
-          <div className="flex items-center gap-2 text-green-700">
-            <ShoppingBag className="w-5 h-5" />
-            <span className="font-medium">Total Purchased</span>
+        <div className="group bg-indigo-50/50 border border-indigo-100/50 p-8 rounded-[2rem] hover:bg-indigo-50 hover:border-indigo-200 transition-all">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 bg-white rounded-2xl shadow-sm text-indigo-600 group-hover:scale-110 transition-transform">
+              <ShoppingBag className="w-6 h-6" />
+            </div>
+            <span className="text-xs font-bold text-indigo-400 uppercase tracking-widest">Total</span>
           </div>
-          <p className="text-3xl font-bold mt-2">{memberInfo.purchased.length}</p>
-        </div>
-
-        <div className="bg-gray-50 border border-gray-100 p-4 rounded-xl">
-          <span className="font-medium text-gray-600 block">Member Since</span>
-          <p className="text-xl font-bold mt-3 text-gray-800">{dateJoined}</p>
+          <p className="text-slate-500 font-medium">Purchased Items</p>
+          <p className="text-5xl font-black text-slate-900 mt-1">{memberInfo.purchased.length}</p>
         </div>
       </div>
 
-      {/* Borrowed Books Section */}
-      <section>
-        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-          <Clock className="w-5 h-5 text-orange-500" /> Borrowed History
-        </h2>
-      
-        <BorrowedBooks books={memberInfo.borrowed} />
-        
-      </section>
+      {/* History Sections */}
+      <div className="space-y-12">
+        <section>
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-1.5 h-6 bg-orange-400 rounded-full" />
+            <h2 className="text-2xl font-bold text-slate-900">Borrowed History</h2>
+          </div>
+          <div className="bg-slate-50/50 rounded-3xl p-6 border border-slate-100">
+            <BorrowedBooks books={memberInfo.borrowed} />
+          </div>
+        </section>
 
-      {/* Purchased Books Section */}
-      <section>
-        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-          <History className="w-5 h-5 text-purple-500" /> Purchase History
-        </h2>
-       
-        {/* Render the new component here */}
-        <PurchasedBooks books={memberInfo.purchased} />
-        
-      </section>
+        <section>
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-1.5 h-6 bg-blue-500 rounded-full" />
+            <h2 className="text-2xl font-bold text-slate-900">Purchase History</h2>
+          </div>
+          <div className="bg-slate-50/50 rounded-3xl p-6 border border-slate-100">
+            <PurchasedBooks books={memberInfo.purchased} />
+          </div>
+        </section>
+      </div>
     </div>
   )
 }

@@ -2,7 +2,7 @@ import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import { verifyToken } from "@/lib/auth/auth"
 import Payload from "@/types/Payload"
-import { LogOut } from "lucide-react"
+import { LogOut, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 
 import ClientProfile from "@/app/profile/[memberId]/clientProfile"
@@ -38,36 +38,42 @@ export default async function ProfilePage({ params }: Props) {
     redirect("/login")
   }
 
-  // 1. Define the Server Action
   async function logout() {
-    "use server" // This directive makes it a Server Action
+    "use server"
     const cookieStore = await cookies()
-    cookieStore.delete("token") // Delete the auth cookie
-    redirect("/login") // Redirect to the login page
+    cookieStore.delete("token")
+    redirect("/login")
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 py-10">
-      <div className="max-w-6xl mx-auto px-6">
-        <div className="bg-white rounded-2xl shadow-md p-8">
+    <div className="min-h-screen bg-slate-50/50 py-12 px-4">
+      <div className="max-w-5xl mx-auto">
+        {/* Navigation */}
+        <div className="mb-8 flex items-center justify-between">
+          <Link 
+            href="/homepage" 
+            className="group flex items-center gap-2 text-slate-500 hover:text-blue-600 font-semibold transition-colors"
+          >
+            <div className="p-2 rounded-full bg-white border border-slate-200 group-hover:border-blue-200 transition-all">
+              <ArrowLeft className="w-4 h-4" />
+            </div>
+            Back to Dashboard
+          </Link>
+
+          <form action={logout}>
+            <button 
+              type="submit" 
+              className="flex items-center gap-2 bg-white border border-red-100 text-red-500 px-5 py-2.5 rounded-xl hover:bg-red-50 hover:border-red-200 transition-all font-bold shadow-sm cursor-pointer"
+            >
+              <LogOut className="w-4 h-4" />
+              Sign Out
+            </button>
+          </form>
+        </div>
+
+        {/* Profile Card */}
+        <div className="bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
           <ClientProfile memberId={memberIdFromToken} />
-
-          <div className="mt-8 flex justify-between items-center">
-            <Link href="/homepage" className="text-blue-600 hover:underline">
-              ← Back to Dashboard
-            </Link>
-
-            {/* 2. Wrap the button in a form that calls the Server Action */}
-            <form action={logout}>
-              <button 
-                type="submit" 
-                className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
-              >
-                <LogOut className="w-4 h-4" />
-                Logout
-              </button>
-            </form>
-          </div>
         </div>
       </div>
     </div>

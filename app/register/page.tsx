@@ -2,6 +2,8 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
+import { BookOpen, User, Mail, Lock, MapPin, AtSign } from "lucide-react"
 
 export default function RegisterForm() {
   const router = useRouter()
@@ -28,7 +30,6 @@ export default function RegisterForm() {
     setError("")
     setIsLoading(true)
 
-    // Password matching validation
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match.")
       setIsLoading(false)
@@ -36,7 +37,6 @@ export default function RegisterForm() {
     }
 
     try {
-      // Exclude confirmPassword from the data sent to the API
       const { confirmPassword, ...apiData } = formData
 
       const response = await fetch("/api/members/register", {
@@ -61,134 +61,162 @@ export default function RegisterForm() {
   }
 
   return (
-    <div className="min-h-[100dvh] flex items-center justify-center bg-gray-100 px-4 py-6">
-      
-      <div className="w-full max-w-md bg-white p-6 sm:p-8 rounded-2xl shadow-md">
-        
-        <h1 className="text-2xl font-bold text-center mb-6">
-          LiMS Registration
-        </h1>
-
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 text-red-600 text-sm border border-red-200 rounded-lg">
-            {error}
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-12">
+      <div className="w-full max-w-[540px]">
+        {/* Logo Area */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-200 mb-3">
+            <BookOpen className="w-6 h-6" />
           </div>
-        )}
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Join LiMS</h1>
+          <p className="text-slate-500 text-sm mt-1">Create your library account today</p>
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          
-          {/* Name */}
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Full Name
-            </label>
-            <input
-              type="text"
-              name="name"
-              className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="John Doe"
-              value={formData.name}
-              onChange={handleChange}
-              required
-            />
+        {/* Card */}
+        <div className="bg-white p-8 sm:p-10 rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-100">
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl text-red-600 text-sm font-medium">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Name */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">
+                  Full Name
+                </label>
+                <div className="relative group">
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                  <input
+                    type="text"
+                    name="name"
+                    className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all text-sm"
+                    placeholder="John Doe"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Username */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">
+                  Username
+                </label>
+                <div className="relative group">
+                  <AtSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                  <input
+                    type="text"
+                    name="username"
+                    className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all text-sm"
+                    placeholder="johndoe"
+                    value={formData.username}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Email */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">
+                Email Address
+              </label>
+              <div className="relative group">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                <input
+                  type="email"
+                  name="email"
+                  className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all text-sm"
+                  placeholder="name@example.com"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Password */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">
+                  Password
+                </label>
+                <div className="relative group">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                  <input
+                    type="password"
+                    name="password"
+                    className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all text-sm"
+                    placeholder="••••••••"
+                    value={formData.password}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Confirm Password */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">
+                  Confirm
+                </label>
+                <div className="relative group">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                  <input
+                    type="password"
+                    name="confirmPassword"
+                    className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all text-sm"
+                    placeholder="••••••••"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Address */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">
+                Home Address
+              </label>
+              <div className="relative group">
+                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                <input
+                  type="text"
+                  name="address"
+                  className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all text-sm"
+                  placeholder="123 Library St, Booktown"
+                  value={formData.address}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 active:scale-[0.98] transition-all disabled:opacity-70 mt-4 cursor-pointer"
+            >
+              {isLoading ? "Creating Account..." : "Create Account"}
+            </button>
+          </form>
+
+          <div className="mt-8 pt-6 border-t border-slate-100 text-center">
+            <p className="text-slate-500 text-sm font-medium">
+              Already have an account?{" "}
+              <Link href="/login" className="text-blue-600 font-bold hover:underline">
+                Sign in instead
+              </Link>
+            </p>
           </div>
-
-          {/* Username */}
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Username
-            </label>
-            <input
-              type="text"
-              name="username"
-              className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="johndoe123"
-              value={formData.username}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          {/* Email */}
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Email
-            </label>
-            <input
-              type="email"
-              name="email"
-              className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="you@example.com"
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          {/* Password */}
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Password
-            </label>
-            <input
-              type="password"
-              name="password"
-              className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="••••••••"
-              value={formData.password}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          {/* Confirm Password */}
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Confirm Password
-            </label>
-            <input
-              type="password"
-              name="confirmPassword"
-              className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="••••••••"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          {/* Address */}
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Address
-            </label>
-            <input
-              type="text"
-              name="address"
-              className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="123 Main St, City"
-              value={formData.address}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          {/* Button */}
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 active:scale-[0.98] transition disabled:opacity-70 disabled:active:scale-100"
-          >
-            {isLoading ? "Registering..." : "Register"}
-          </button>
-        </form>
-
-        <p className="text-sm text-center mt-4 text-gray-500">
-          Already have an account?{" "}
-          <a href="/login" className="text-blue-500 hover:underline">
-            Sign In
-          </a>
-        </p>
+        </div>
       </div>
     </div>
   )

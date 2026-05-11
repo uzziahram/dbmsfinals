@@ -2,9 +2,9 @@ import { verifyToken } from "@/lib/auth/auth"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import Payload from "@/types/Payload"
-import BookShelves from "@/app/homepage/BookShelves" // Check your import path
+import BookShelves from "@/app/homepage/BookShelves"
 import Link from "next/link"
-import { User } from "lucide-react"
+import { User, LogOut } from "lucide-react"
 
 export default async function Dashboard() {
   const cookieStore = await cookies()
@@ -18,34 +18,34 @@ export default async function Dashboard() {
   const member: Payload = memberVerification
 
   return (
-    <div className="min-h-screen bg-gray-100 py-10">
-      <div className="max-w-6xl mx-auto px-6">
+    <div className="min-h-screen bg-slate-50/50 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Header */}
-        <header className="mb-8 flex items-center justify-between bg-blue-600 text-white p-6 rounded-xl shadow-md">
-          {/* Left side */}
+        <header className="mb-12 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           <div>
-            <h1 className="text-3xl font-bold">
-              Welcome, <span className="text-blue-100">{member.memberUserName}</span>
+            <h1 className="text-4xl font-semibold tracking-tight text-slate-900">
+              Welcome back, <span className="text-blue-600 font-bold">{member.memberUserName}</span>
             </h1>
-            <p className="text-blue-100 mt-1">
-              Discover and manage your books 📚
+            <p className="text-slate-500 mt-2 text-lg font-light">
+              Explore your library and discover your next great read.
             </p>
           </div>
 
-          {/* Profile Button */}
-          <Link
-            href={`/profile/${member.memberId}`}
-            className="p-2 rounded-full hover:bg-blue-500 transition"
-            title="Go to Profile"
-          >
-            <User className="w-6 h-6 text-white" />
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href={`/profile/${member.memberId}`}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white border border-slate-200 shadow-sm hover:border-blue-400 hover:text-blue-600 transition-all text-slate-600 font-medium"
+              title="Go to Profile"
+            >
+              <User className="w-5 h-5" />
+              <span>Profile</span>
+            </Link>
+          </div>
         </header>
 
         {/* Main Content */}
         <main>
-          {/* Pass the memberId down as a prop */}
           <BookShelves memberId={String(member.memberId)} /> 
         </main>
 
