@@ -46,36 +46,35 @@ export default async function ProfilePage({ params }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50/50 py-12 px-4">
-      <div className="max-w-5xl mx-auto">
-        {/* Navigation */}
-        <div className="mb-8 flex items-center justify-between">
+    <div className="min-h-screen bg-white">
+      {/* Top Navigation Bar */}
+      <nav className="border-b border-slate-100 bg-white sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <Link 
             href="/homepage" 
-            className="group flex items-center gap-2 text-slate-500 hover:text-blue-600 font-semibold transition-colors"
+            className="group flex items-center gap-3 text-slate-500 hover:text-blue-600 font-bold transition-colors"
           >
-            <div className="p-2 rounded-full bg-white border border-slate-200 group-hover:border-blue-200 transition-all">
+            <div className="p-2 rounded-none bg-slate-50 border border-slate-200 group-hover:border-blue-100 group-hover:bg-blue-50 transition-all">
               <ArrowLeft className="w-4 h-4" />
             </div>
-            Back to Dashboard
+            <span>Back to Library</span>
           </Link>
 
           <form action={logout}>
             <button 
               type="submit" 
-              className="flex items-center gap-2 bg-white border border-red-100 text-red-500 px-5 py-2.5 rounded-xl hover:bg-red-50 hover:border-red-200 transition-all font-bold shadow-sm cursor-pointer"
+              className="flex items-center gap-2 bg-slate-50 border border-slate-200 text-slate-600 px-6 py-2.5 rounded-none hover:bg-red-50 hover:border-red-100 hover:text-red-600 transition-all font-bold cursor-pointer"
             >
               <LogOut className="w-4 h-4" />
               Sign Out
             </button>
           </form>
         </div>
+      </nav>
 
-        {/* Profile Card */}
-        <div className="bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
-          <ClientProfile memberId={memberIdFromToken} />
-        </div>
-      </div>
+      <main className="max-w-7xl mx-auto">
+        <ClientProfile memberId={memberIdFromToken} />
+      </main>
     </div>
   )
 }

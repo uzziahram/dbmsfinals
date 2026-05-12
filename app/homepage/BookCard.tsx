@@ -15,7 +15,7 @@ export default function BookCard({ book, onClick }: Props) {
   return (
     <div
       onClick={onClick}
-      className="group bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-blue-900/5 hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col h-full"
+      className="group bg-white border border-slate-200 rounded-none overflow-hidden hover:shadow-xl hover:shadow-blue-900/5 hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col h-full"
     >
       {/* Image wrapper */}
       <div className="relative aspect-[2/3] overflow-hidden bg-slate-100">
@@ -48,7 +48,7 @@ export default function BookCard({ book, onClick }: Props) {
             {book.genres?.slice(0, 2).map((genre, index) => (
               <span
                 key={index}
-                className="text-[10px] uppercase tracking-wider font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md"
+                className="text-[10px] uppercase tracking-wider font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-none"
               >
                 {genre}
               </span>

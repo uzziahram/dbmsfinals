@@ -113,7 +113,7 @@ export default function BookShelves({ memberId }: BookShelvesProps) {
 
   return (
     <section>
-      <div className="mb-10 flex flex-col md:flex-row gap-4 items-center justify-between bg-slate-50 p-4 rounded-2xl border border-slate-200 shadow-sm">
+      <div className="mb-10 flex flex-col md:flex-row gap-4 items-center justify-between bg-slate-50 p-4 rounded-none border border-slate-200 shadow-sm">
         
         {/* Search Form */}
         <form onSubmit={handleSearch} className="flex w-full md:max-w-md gap-2">
@@ -124,12 +124,12 @@ export default function BookShelves({ memberId }: BookShelvesProps) {
               placeholder="Search by title, author, or ISBN..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all"
+              className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-none text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all"
             />
           </div>
           <button
             type="submit"
-            className="px-6 py-2.5 bg-blue-600 text-white rounded-xl shadow-sm text-sm font-semibold hover:bg-blue-700 active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all whitespace-nowrap"
+            className="px-6 py-2.5 bg-blue-600 text-white rounded-none shadow-sm text-sm font-semibold hover:bg-blue-700 active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all whitespace-nowrap"
           >
             Search
           </button>
@@ -140,7 +140,7 @@ export default function BookShelves({ memberId }: BookShelvesProps) {
           <div className="relative w-full md:w-64" ref={dropdownRef}>
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="w-full flex justify-between items-center px-4 py-2.5 bg-white border border-slate-200 rounded-xl shadow-sm text-sm font-medium text-slate-700 hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
+              className="w-full flex justify-between items-center px-4 py-2.5 bg-white border border-slate-200 rounded-none shadow-sm text-sm font-medium text-slate-700 hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
             >
               <div className="flex items-center gap-2">
                 <Filter className="w-4 h-4 text-slate-400" />
@@ -154,14 +154,14 @@ export default function BookShelves({ memberId }: BookShelvesProps) {
             </button>
 
             {isDropdownOpen && (
-              <div className="absolute z-20 mt-2 w-full bg-white border border-slate-200 rounded-2xl shadow-xl py-2 max-h-72 overflow-y-auto animate-in fade-in zoom-in duration-200">
+              <div className="absolute z-20 mt-2 w-full bg-white border border-slate-200 rounded-none shadow-xl py-2 max-h-72 overflow-y-auto animate-in fade-in zoom-in duration-200">
                 {availableGenres.map((genre) => (
                   <button
                     key={genre}
                     onClick={() => toggleGenre(genre)}
                     className="w-full px-4 py-2.5 hover:bg-slate-50 flex items-center gap-3 transition-colors text-left"
                   >
-                    <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${selectedGenres.includes(genre) ? 'bg-blue-600 border-blue-600' : 'border-slate-300 bg-white'}`}>
+                    <div className={`w-4 h-4 rounded-none border flex items-center justify-center transition-colors ${selectedGenres.includes(genre) ? 'bg-blue-600 border-blue-600' : 'border-slate-300 bg-white'}`}>
                       {selectedGenres.includes(genre) && (
                         <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
@@ -182,11 +182,11 @@ export default function BookShelves({ memberId }: BookShelvesProps) {
       {/* Grid Rendering */}
       {isLoading ? (
         <div className="flex flex-col items-center justify-center py-20 gap-4">
-          <div className="w-10 h-10 border-4 border-blue-600/20 border-t-blue-600 rounded-full animate-spin" />
+          <div className="w-10 h-10 border-4 border-blue-600/20 border-t-blue-600 rounded-none animate-spin" />
           <p className="text-slate-500 font-medium">Curating your library...</p>
         </div>
       ) : books.length === 0 ? (
-        <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-slate-300">
+        <div className="text-center py-20 bg-white rounded-none border border-dashed border-slate-300">
           <p className="text-slate-400 text-lg">No books match your search.</p>
           <button 
             onClick={() => {setActiveQuery(""); setSelectedGenres([]); setSearchInput("")}}

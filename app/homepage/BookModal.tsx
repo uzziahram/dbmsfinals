@@ -129,32 +129,47 @@ export default function BookModal({ book, onClose, memberId }: Props) {
   const isSuccessStep = step === "success" || step === "borrow_success";
 
   return (
-    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4 sm:p-6 animate-in fade-in duration-300">
-      <div className="bg-white rounded-[2.5rem] shadow-2xl shadow-slate-900/20 relative flex max-w-5xl w-full overflow-hidden min-h-[500px] border border-slate-100">
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-50 p-4 sm:p-8 animate-in fade-in duration-300">
+      <div className="bg-white rounded-none relative flex max-w-6xl w-full overflow-hidden min-h-[600px] border border-slate-200">
         
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 p-2 rounded-full bg-slate-100 text-slate-400 hover:text-slate-900 hover:bg-slate-200 transition-all z-20 cursor-pointer"
+          className="absolute top-4 right-4 p-2.5 rounded-none bg-white/80 backdrop-blur text-slate-400 hover:text-slate-900 hover:bg-white border border-slate-100 transition-all z-30 cursor-pointer"
         >
           <X className="w-5 h-5" />
         </button>
 
-        {/* LEFT: IMAGE */}
+        {/* LEFT: GALLERY VIEW */}
         {!isSuccessStep && (
-          <div className="relative w-[340px] lg:w-[400px] aspect-[2/3] flex-shrink-0 hidden md:block group overflow-hidden">
-            <Image
-              src={`/booksdb/${book.id}/cover.jpg`}
-              alt={book.title}
-              fill
-              sizes="(max-width: 768px) 0vw, 400px"
-              className="object-cover group-hover:scale-105 transition-transform duration-700"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-slate-900/10 to-transparent" />
+          <div className="relative w-[380px] lg:w-[480px] flex-shrink-0 hidden md:flex items-center justify-center bg-slate-50 border-r border-slate-100 group">
+            {/* Soft backdrop blur for the image area */}
+            <div className="absolute inset-0 opacity-10 grayscale">
+              <Image
+                src={`/booksdb/${book.id}/cover.jpg`}
+                alt=""
+                fill
+                className="object-cover blur-2xl scale-150"
+              />
+            </div>
+            
+            <div className="relative w-[85%] aspect-[2/3] z-10">
+              <Image
+                src={`/booksdb/${book.id}/cover.jpg`}
+                alt={book.title}
+                fill
+                priority
+                sizes="(max-width: 768px) 0vw, 480px"
+                className="object-contain"
+              />
+            </div>
+            
+            {/* Subtle paper texture overlay */}
+            <div className="absolute inset-0 pointer-events-none mix-blend-multiply opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/cardboard-flat.png')]" />
           </div>
         )}
 
         {/* RIGHT: DYNAMIC CONTENT */}
-        <div className={`p-8 sm:p-12 flex flex-col w-full ${isSuccessStep ? "md:w-full items-center justify-center text-center" : "md:flex-grow justify-center"}`}>
+        <div className={`px-10 pb-10 pt-20 sm:px-16 sm:pb-16 sm:pt-24 flex flex-col w-full ${isSuccessStep ? "md:w-full items-center justify-center text-center max-w-3xl mx-auto" : "md:flex-grow justify-center"}`}>
           
          {/* --- STEP 1: DETAILS --- */}
          {step === "details" && (
@@ -205,36 +220,46 @@ export default function BookModal({ book, onClose, memberId }: Props) {
           {/* --- STEP 3.A: PURCHASE SUCCESS UI --- */}
           {step === "success" && (
             <div className="animate-in zoom-in-95 duration-500 flex flex-col items-center max-w-md w-full">
-              <div className="w-24 h-24 bg-green-50 text-green-600 rounded-full flex items-center justify-center mb-8 shadow-inner">
+              <div className="w-24 h-24 bg-green-50 text-green-600 rounded-none flex items-center justify-center mb-8">
                 <CheckCircle2 className="w-12 h-12" />
               </div>
               
               <h2 className="text-3xl font-bold text-slate-900 mb-2">
                 {paymentMethod === 'cash' ? "Order Confirmed" : "Payment Successful"}
               </h2>
-              <p className="text-slate-500 mb-8 font-medium">
+              <p className="text-slate-500 mb-8 font-medium text-center">
                 You&apos;ve successfully purchased {quantity} {selectedCopy?.format}(s) of <span className="text-slate-900">{book.title}</span>.
               </p>
 
-              {paymentMethod === 'cash' && (
-                <div className="bg-amber-50 border border-amber-200 p-4 rounded-2xl w-full mb-6">
-                  <p className="text-amber-800 text-sm font-bold flex items-center gap-3 justify-center text-center">
-                    <AlertCircle className="w-5 h-5 flex-shrink-0" />
-                    Please go to the librarian to pay and receive your book copy.
-                  </p>
-                </div>
-              )}
+              <div className="w-full space-y-4 mb-8">
+                {selectedCopy?.format === 'hardcopy' ? (
+                  <div className="bg-blue-50 border border-blue-200 p-5 rounded-none">
+                    <p className="text-blue-800 text-sm font-bold flex items-center gap-3 justify-center text-center uppercase tracking-wide">
+                      <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                      Please claim your book at the library counter
+                    </p>
+                  </div>
+                ) : (
+                  paymentMethod !== 'cash' && (
+                    <div className="bg-green-50 border border-green-200 p-5 rounded-none">
+                      <p className="text-green-800 text-sm font-bold flex items-center gap-3 justify-center text-center uppercase tracking-wide">
+                        <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
+                        Digital copy is now available in your profile
+                      </p>
+                    </div>
+                  )
+                )}
 
-              {paymentMethod !== 'cash' && selectedCopy?.format === 'hardcopy' && (
-                <div className="bg-green-50 border border-green-100 p-4 rounded-2xl w-full mb-6">
-                  <p className="text-green-800 text-sm font-bold flex items-center gap-3 justify-center text-center">
-                    <AlertCircle className="w-5 h-5 flex-shrink-0 text-green-600" />
-                    Please go to the librarian so that they can give you your book.
-                  </p>
-                </div>
-              )}
+                {paymentMethod === 'cash' && (
+                  <div className="bg-amber-50 border border-amber-200 p-4 rounded-none">
+                    <p className="text-amber-800 text-xs font-bold flex items-center gap-3 justify-center text-center">
+                      Our records show you chose Cash. Please settle your payment with the librarian to {selectedCopy?.format === 'hardcopy' ? 'receive your copy' : 'activate your digital access'}.
+                    </p>
+                  </div>
+                )}
+              </div>
 
-              <div className="bg-green-50 border border-green-100 p-8 rounded-[2rem] w-full mb-10 space-y-4">
+              <div className="bg-green-50 border border-green-100 p-8 rounded-none w-full mb-10 space-y-4">
                 <div className="flex justify-between items-center text-green-700 font-medium">
                   <span className="text-lg">Total Cost</span>
                   <span className="text-3xl font-black text-slate-900 tracking-tighter">${totalPrice}</span>
@@ -243,7 +268,7 @@ export default function BookModal({ book, onClose, memberId }: Props) {
 
               <button 
                 onClick={onClose}
-                className="w-full py-4 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition shadow-xl shadow-blue-100 cursor-pointer"
+                className="w-full py-4 bg-blue-600 text-white font-bold rounded-none hover:bg-blue-700 transition cursor-pointer"
               >
                 Return to Library
               </button>
@@ -253,7 +278,7 @@ export default function BookModal({ book, onClose, memberId }: Props) {
           {/* --- STEP 3.B: BORROW SUCCESS UI --- */}
           {step === "borrow_success" && (
             <div className="animate-in zoom-in-95 duration-500 flex flex-col items-center max-w-md w-full">
-              <div className="w-24 h-24 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-8 shadow-inner">
+              <div className="w-24 h-24 bg-blue-50 text-blue-600 rounded-none flex items-center justify-center mb-8">
                 <CheckCircle2 className="w-12 h-12" />
               </div>
               
@@ -263,7 +288,7 @@ export default function BookModal({ book, onClose, memberId }: Props) {
               </p>
 
               {selectedCopy?.format === 'hardcopy' && (
-                <div className="bg-blue-50 border border-blue-100 p-4 rounded-2xl w-full mb-6">
+                <div className="bg-blue-50 border border-blue-100 p-4 rounded-none w-full mb-6">
                   <p className="text-blue-700 text-sm font-bold flex items-center gap-3 justify-center text-center">
                     <AlertCircle className="w-5 h-5 flex-shrink-0" />
                     Please go to the librarian so that they can give you your book.
@@ -271,7 +296,7 @@ export default function BookModal({ book, onClose, memberId }: Props) {
                 </div>
               )}
 
-              <div className="bg-blue-50 border border-blue-100 p-6 rounded-2xl w-full mb-10">
+              <div className="bg-blue-50 border border-blue-100 p-6 rounded-none w-full mb-10">
                   <p className="text-blue-700 text-sm font-semibold flex items-center gap-2 justify-center">
                     <AlertCircle className="w-4 h-4" />
                     Please return it within 14 days.
@@ -280,7 +305,7 @@ export default function BookModal({ book, onClose, memberId }: Props) {
 
               <button 
                 onClick={onClose}
-                className="w-full py-4 bg-slate-900 text-white font-bold rounded-2xl hover:bg-black transition shadow-xl shadow-slate-200 cursor-pointer"
+                className="w-full py-4 bg-slate-900 text-white font-bold rounded-none hover:bg-black transition cursor-pointer"
               >
                 Back to Dashboard
               </button>

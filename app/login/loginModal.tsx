@@ -45,7 +45,7 @@ export default function LoginModal() {
       <div className="w-full max-w-[440px]">
         {/* Logo Area */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-600 text-white shadow-xl shadow-blue-200 mb-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-none bg-blue-600 text-white shadow-xl shadow-blue-200 mb-4">
             <BookOpen className="w-8 h-8" />
           </div>
           <h1 className="text-3xl font-bold text-slate-900 tracking-tight">LiMS</h1>
@@ -53,11 +53,11 @@ export default function LoginModal() {
         </div>
 
         {/* Card */}
-        <div className="bg-white p-8 sm:p-10 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100">
+        <div className="bg-white p-8 sm:p-10 rounded-none shadow-xl shadow-slate-200/50 border border-slate-100">
           <h2 className="text-xl font-semibold text-slate-800 mb-6 text-center">Sign in to your account</h2>
 
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl text-red-600 text-sm font-medium">
+            <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-none text-red-600 text-sm font-medium">
               {error}
             </div>
           )}
@@ -72,7 +72,7 @@ export default function LoginModal() {
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                 <input
                   type="email"
-                  className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all"
+                  className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-none text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all"
                   placeholder="name@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -90,7 +90,7 @@ export default function LoginModal() {
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                 <input
                   type="password"
-                  className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all"
+                  className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-none text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all"
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -102,7 +102,7 @@ export default function LoginModal() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-blue-600 text-white py-3.5 rounded-2xl font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 active:scale-[0.98] transition-all disabled:opacity-70 cursor-pointer"
+              className="w-full bg-blue-600 text-white py-3.5 rounded-none font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 active:scale-[0.98] transition-all disabled:opacity-70 cursor-pointer"
             >
               {isLoading ? "Signing in..." : "Sign In"}
             </button>

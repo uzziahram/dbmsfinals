@@ -26,66 +26,77 @@ export function BookBorrowView({
   onSubmit,
 }: Props) {
   return (
-    <div className="animate-in slide-in-from-right-4 duration-300 flex flex-col h-full w-full">
-      <div>
+    <div className="animate-in fade-in duration-500 flex flex-col h-full w-full">
+      <div className="overflow-y-auto pr-2 max-h-[65vh] space-y-10">
+        {/* Navigation */}
         <button 
           onClick={onBack}
-          className="text-blue-500 text-sm font-medium mb-4 hover:underline"
+          className="text-sm font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 cursor-pointer relative z-10"
         >
-          ← Back to details
+          ← Back to Details
         </button>
-        
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Borrow Options</h2>
 
-        {/* Dynamic Format Selection */}
-        <div className="space-y-4">
-          <label className="block text-sm font-semibold text-gray-700">Select Format to Borrow</label>
-          <div className="flex gap-4 flex-wrap">
+        <div className="pt-2">
+          <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Borrow Options</h2>
+        </div>
+
+        {/* Specimen Selection */}
+        <div className="space-y-3">
+          <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Format</label>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {book.copies?.map((copy) => (
               <button
                 key={copy.id}
                 onClick={() => setSelectedCopy(copy)}
-                className={`flex-1 min-w-[120px] py-3 border-2 rounded-lg transition-all flex flex-col items-center justify-center gap-1 ${
+                className={`py-4 border-2 rounded-none transition-all flex flex-col items-center justify-center gap-1 ${
                   selectedCopy?.id === copy.id 
-                  ? "border-blue-500 bg-blue-50 text-blue-700" 
-                  : "border-gray-200 text-gray-500 hover:border-gray-300"
+                  ? "border-slate-900 bg-slate-900 text-white" 
+                  : "border-slate-100 text-slate-500 hover:border-slate-200"
                 }`}
               >
-                <span className="capitalize font-semibold">{copy.format}</span>
-                <span className="text-sm">
+                <span className="capitalize font-bold text-sm">{copy.format}</span>
+                <span className="text-xs opacity-80">
                   {copy.stock !== null ? (copy.stock > 0 ? `${copy.stock} available` : "Out of stock") : "Available"}
                 </span>
               </button>
             ))}
           </div>
         </div>
+
+        {/* Terms Section */}
+        <div className="space-y-3">
+          <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Lending Terms</label>
+          <div className="bg-slate-50 p-6 border-l-4 border-slate-900">
+            <p className="text-sm font-bold text-slate-700 mb-2">Standard 14-day borrowing period.</p>
+            <p className="text-xs text-slate-500 leading-relaxed italic">
+              By confirming, you agree to return the book in its current condition.
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Submit */}
-      <div className="mt-auto pt-6">
+      <div className="mt-auto pt-8 border-t border-slate-100 bg-white">
         {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm flex items-start gap-2 animate-in fade-in">
-            <AlertCircle className="w-5 h-5 flex-shrink-0" />
-            <span>{error}</span>
+          <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm font-medium">
+            {error}
           </div>
         )}
 
-        <button 
-          onClick={onSubmit}
-          disabled={isOutOfStock || !selectedCopy || isSubmitting}
-          className="w-full py-4 bg-blue-600 text-white font-bold rounded-lg transition flex items-center justify-center shadow-lg shadow-blue-200 hover:bg-blue-700 disabled:bg-gray-400 disabled:shadow-none disabled:cursor-not-allowed"
-        >
-          {isSubmitting ? (
-            <span className="flex items-center gap-2">
-              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              Processing...
-            </span>
-          ) : isOutOfStock ? (
-            "Out of Stock" 
-          ) : (
-            "Confirm Borrow"
-          )}
-        </button>
+        <div className="flex items-center justify-between">
+          <div>
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Borrowing Fee</span>
+            <span className="text-2xl font-bold text-slate-900 tracking-tight">Free</span>
+          </div>
+
+          <button 
+            onClick={onSubmit}
+            disabled={isOutOfStock || !selectedCopy || isSubmitting}
+            className="px-10 py-4 bg-slate-900 text-white font-bold rounded-none hover:bg-black transition-all"
+          >
+            {isSubmitting ? "Processing..." : "Confirm Borrow"}
+          </button>
+        </div>
       </div>
     </div>
   )

@@ -35,7 +35,7 @@ export default async function Dashboard() {
           <div className="flex items-center gap-3">
             <Link
               href={`/profile/${member.memberId}`}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white border border-slate-200 shadow-sm hover:border-blue-400 hover:text-blue-600 transition-all text-slate-600 font-medium"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-none bg-white border border-slate-200 shadow-sm hover:border-blue-400 hover:text-blue-600 transition-all text-slate-600 font-medium"
               title="Go to Profile"
             >
               <User className="w-5 h-5" />

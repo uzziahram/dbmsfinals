@@ -65,7 +65,7 @@ export default function RegisterForm() {
       <div className="w-full max-w-[540px]">
         {/* Logo Area */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-200 mb-3">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-none bg-blue-600 text-white shadow-lg shadow-blue-200 mb-3">
             <BookOpen className="w-6 h-6" />
           </div>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Join LiMS</h1>
@@ -73,9 +73,9 @@ export default function RegisterForm() {
         </div>
 
         {/* Card */}
-        <div className="bg-white p-8 sm:p-10 rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-100">
+        <div className="bg-white p-8 sm:p-10 rounded-none shadow-xl shadow-slate-200/50 border border-slate-100">
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl text-red-600 text-sm font-medium">
+            <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-none text-red-600 text-sm font-medium">
               {error}
             </div>
           )}
@@ -92,7 +92,7 @@ export default function RegisterForm() {
                   <input
                     type="text"
                     name="name"
-                    className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all text-sm"
+                    className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-none text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all text-sm"
                     placeholder="John Doe"
                     value={formData.name}
                     onChange={handleChange}
@@ -111,7 +111,7 @@ export default function RegisterForm() {
                   <input
                     type="text"
                     name="username"
-                    className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all text-sm"
+                    className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-none text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all text-sm"
                     placeholder="johndoe"
                     value={formData.username}
                     onChange={handleChange}
@@ -131,7 +131,7 @@ export default function RegisterForm() {
                 <input
                   type="email"
                   name="email"
-                  className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all text-sm"
+                  className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-none text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all text-sm"
                   placeholder="name@example.com"
                   value={formData.email}
                   onChange={handleChange}
@@ -151,7 +151,7 @@ export default function RegisterForm() {
                   <input
                     type="password"
                     name="password"
-                    className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all text-sm"
+                    className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-none text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all text-sm"
                     placeholder="••••••••"
                     value={formData.password}
                     onChange={handleChange}
@@ -170,7 +170,7 @@ export default function RegisterForm() {
                   <input
                     type="password"
                     name="confirmPassword"
-                    className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all text-sm"
+                    className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-none text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all text-sm"
                     placeholder="••••••••"
                     value={formData.confirmPassword}
                     onChange={handleChange}
@@ -190,7 +190,7 @@ export default function RegisterForm() {
                 <input
                   type="text"
                   name="address"
-                  className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all text-sm"
+                  className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-none text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all text-sm"
                   placeholder="123 Library St, Booktown"
                   value={formData.address}
                   onChange={handleChange}
@@ -202,7 +202,7 @@ export default function RegisterForm() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 active:scale-[0.98] transition-all disabled:opacity-70 mt-4 cursor-pointer"
+              className="w-full bg-blue-600 text-white py-4 rounded-none font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 active:scale-[0.98] transition-all disabled:opacity-70 mt-4 cursor-pointer"
             >
               {isLoading ? "Creating Account..." : "Create Account"}
             </button>
