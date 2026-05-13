@@ -36,13 +36,27 @@ SELECT
     
 FROM books b
 JOIN authors a ON b.author_id = a.id
-[WHERE (
-    SELECT COUNT(DISTINCT filter_g.name) 
-    FROM book_genres filter_bg
-    JOIN genres filter_g ON filter_bg.genre_id = filter_g.id
-    WHERE filter_bg.book_id = b.id 
-    AND filter_g.name IN (?)
-) = ?]
+[
+  // CASE 1: Inclusion (Selection with AND)
+  WHERE (
+      SELECT COUNT(DISTINCT filter_g.name) 
+      FROM book_genres filter_bg
+      JOIN genres filter_g ON filter_bg.genre_id = filter_g.id
+      WHERE filter_bg.book_id = b.id 
+      AND filter_g.name IN (?)
+  ) = ?
+
+  // OR
+
+  // CASE 2: Exclusion (Selection with NOT)
+  WHERE NOT EXISTS (
+      SELECT 1
+      FROM book_genres filter_bg
+      JOIN genres filter_g ON filter_bg.genre_id = filter_g.id
+      WHERE filter_bg.book_id = b.id 
+      AND filter_g.name IN (?)
+  )
+]
 ORDER BY b.id;
 
 --- File: app/api/books/route.ts ---
@@ -75,6 +89,16 @@ SELECT
     
 FROM books b, authors a
 WHERE b.author_id = a.id
+[
+  // New Discoveries Filter (Requirement: DIFFERENCE)
+  // [All Books] DIFFERENCE [Books User has Borrowed]
+  AND b.id NOT IN (
+      SELECT bc.book_id 
+      FROM borrow_logs bl
+      JOIN book_copies bc ON bl.book_copy_id = bc.id
+      WHERE bl.member_id = ?
+  )
+]
 ORDER BY b.id;
 
 --- File: app/api/books/search/route.ts ---
@@ -118,14 +142,38 @@ SELECT
         WHERE search_bg.book_id = b.id AND search_g.name LIKE ?
     )
  ORDER BY b.published_year DESC
-
 --- File: app/api/members/[id]/route.ts ---
 SELECT id, name, username, email, address, created_at
 FROM members
 WHERE id = ?
 
+// Unified Activity History (Requirement: UNION)
+(SELECT 
+    'BORROW' as activity_type,
+    b.title as book_title,
+    bc.format,
+    bl.borrowed_at as activity_date,
+    bl.status as detail
+  FROM borrow_logs bl
+  JOIN book_copies bc ON bl.book_copy_id = bc.id
+  JOIN books b ON bc.book_id = b.id
+  WHERE bl.member_id = ?)
+UNION
+(SELECT 
+    'PURCHASE' as activity_type,
+    b.title as book_title,
+    bc.format,
+    pl.purchased_at as activity_date,
+    CONCAT('Qty: ', pl.quantity) as detail
+  FROM purchase_logs pl
+  JOIN book_copies bc ON pl.book_copy_id = bc.id
+  JOIN books b ON bc.book_id = b.id
+  WHERE pl.member_id = ?)
+ORDER BY activity_date DESC
+
 SELECT 
     bl.id,
+...
     bl.book_copy_id,
     bl.status,
     bl.borrowed_at,

@@ -8,8 +8,9 @@ import BorrowedBooks from "./borrowedBook"
 import PurchasedBooks from "./purchasedBooks" 
 
 export default function ClientProfile({ memberId }: { memberId: number }) {
-  const [memberInfo, setMemberInfo] = useState<MemberProfile | null>(null)
+  const [memberInfo, setMemberInfo] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState<'collection' | 'history'>('collection')
 
   useEffect(() => {
     const fetchMember = async () => {
@@ -53,7 +54,7 @@ export default function ClientProfile({ memberId }: { memberId: number }) {
       {/* Compact Header & Stats */}
       <div className="flex flex-col lg:flex-row items-center justify-between gap-8 pb-12 border-b border-slate-100">
         <div className="flex items-center gap-6">
-          <div className="bg-slate-900 w-16 h-16 rounded-none flex items-center justify-center text-white flex-shrink-0">
+          <div className="bg-slate-900 w-16 h-16 rounded-none flex items-center justify-center text-white shrink-0">
             <User className="w-8 h-8" />
           </div>
 
@@ -81,33 +82,101 @@ export default function ClientProfile({ memberId }: { memberId: number }) {
         </div>
       </div>
 
-      {/* Book Collections - Full Width Grid */}
-      <div className="grid grid-cols-1 gap-16">
-        <section>
-          <div className="flex items-center justify-between mb-8 pb-4 border-b-2 border-slate-900">
-            <div className="flex items-center gap-3">
-              <BookOpen className="w-6 h-6 text-slate-900" />
-              <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">
-                Active & Past Borrowings
-              </h2>
-            </div>
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Collection I</span>
-          </div>
-          <BorrowedBooks books={memberInfo.borrowed} />
-        </section>
+      {/* Tabs Navigation */}
+      <div className="flex gap-8 border-b border-slate-200">
+        <button
+          onClick={() => setActiveTab('collection')}
+          className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all ${activeTab === 'collection' ? 'border-b-2 border-slate-900 text-slate-900' : 'text-slate-400 hover:text-slate-600'}`}
+        >
+          My Collection
+        </button>
+        <button
+          onClick={() => setActiveTab('history')}
+          className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all ${activeTab === 'history' ? 'border-b-2 border-slate-900 text-slate-900' : 'text-slate-400 hover:text-slate-600'}`}
+        >
+          Activity History
+        </button>
+      </div>
 
-        <section>
-          <div className="flex items-center justify-between mb-8 pb-4 border-b-2 border-slate-900">
-            <div className="flex items-center gap-3">
-              <ShoppingBag className="w-6 h-6 text-slate-900" />
-              <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">
-                Acquired Works
-              </h2>
+      {/* Tab Content */}
+      <div className="grid grid-cols-1 gap-16">
+        {activeTab === 'collection' ? (
+          <>
+            <section>
+              <div className="flex items-center justify-between mb-8 pb-4 border-b-2 border-slate-900">
+                <div className="flex items-center gap-3">
+                  <BookOpen className="w-6 h-6 text-slate-900" />
+                  <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">
+                    Borrowed Books
+                  </h2>
+                </div>
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Collection I</span>
+              </div>
+              <BorrowedBooks books={memberInfo.borrowed.filter((book: any) => !book.returned_at)} />
+            </section>
+
+            <section>
+              <div className="flex items-center justify-between mb-8 pb-4 border-b-2 border-slate-900">
+                <div className="flex items-center gap-3">
+                  <ShoppingBag className="w-6 h-6 text-slate-900" />
+                  <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">
+                    Acquired Works
+                  </h2>
+                </div>
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Collection II</span>
+              </div>
+              <PurchasedBooks books={memberInfo.purchased} />
+            </section>
+          </>
+        ) : (
+          <section>
+            <div className="flex items-center justify-between mb-8 pb-4 border-b-2 border-slate-900">
+              <div className="flex items-center gap-3">
+                <History className="w-6 h-6 text-slate-900" />
+                <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">
+                  Complete Log
+                </h2>
+              </div>
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">UNION REPORT</span>
             </div>
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Collection II</span>
-          </div>
-          <PurchasedBooks books={memberInfo.purchased} />
-        </section>
+            
+            <div className="bg-slate-50 border border-slate-200 overflow-hidden">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-slate-900 text-white uppercase text-[10px] font-bold tracking-widest">
+                  <tr>
+                    <th className="px-6 py-4">Action</th>
+                    <th className="px-6 py-4">Title</th>
+                    <th className="px-6 py-4">Format</th>
+                    <th className="px-6 py-4">Status / Detail</th>
+                    <th className="px-6 py-4">Date</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200">
+                  {memberInfo.history.map((item: any, idx: number) => (
+                    <tr key={idx} className="hover:bg-white transition-colors">
+                      <td className="px-6 py-4">
+                        <span className={`px-2 py-1 text-[10px] font-black uppercase tracking-tighter ${item.activity_type === 'BORROW' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>
+                          {item.activity_type}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 font-bold text-slate-900">{item.book_title}</td>
+                      <td className="px-6 py-4 text-slate-500 italic">{item.format}</td>
+                      <td className="px-6 py-4 font-medium text-slate-600">{item.detail}</td>
+                      <td className="px-6 py-4 text-slate-400 font-mono text-xs">
+                        {new Date(item.activity_date).toLocaleDateString()}
+                      </td>
+                    </tr>
+                  ))}
+                  {memberInfo.history.length === 0 && (
+                    <tr>
+                      <td colSpan={5} className="px-6 py-12 text-center text-slate-400 italic">No activity history found.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
       </div>
     </div>
   )

@@ -1,5 +1,5 @@
+import { NextRequest, NextResponse } from "next/server";
 import database from "@/lib/database/db";
-import { NextResponse } from "next/server";
 import { Books } from "@/types/Books"; 
 import { BookCopy } from "@/types/BookCopy";
 import { RowDataPacket } from "mysql2";
@@ -14,9 +14,17 @@ interface RawBookRow extends RowDataPacket {
   copies: string | BookCopy[] | null;
 }
 
-export async function GET() {
+/**
+ * GET handler for books catalog.
+ * Supports 'notBorrowed' filter (DIFFERENCE requirement).
+ */
+export async function GET(request: NextRequest) {
   try {
-    const [rows] = await database.query<RawBookRow[]>(`
+    const searchParams = request.nextUrl.searchParams;
+    const notBorrowed = searchParams.get("notBorrowed") === "true";
+    const memberId = searchParams.get("memberId");
+
+    let sqlQuery = `
       SELECT 
           b.id,
           b.title,
@@ -46,10 +54,27 @@ export async function GET() {
           
       FROM books b, authors a
       WHERE b.author_id = a.id
-      ORDER BY b.id;
-    `);
+    `;
 
-    // Parse and map the raw rows to strictly match your Books interface
+    const queryParams: any[] = [];
+
+    if (notBorrowed && memberId) {
+      // DIFFERENCE: [All Books] - [Books User has Borrowed]
+      sqlQuery += `
+        AND b.id NOT IN (
+            SELECT bc.book_id 
+            FROM borrow_logs bl
+            JOIN book_copies bc ON bl.book_copy_id = bc.id
+            WHERE bl.member_id = ?
+        )
+      `;
+      queryParams.push(memberId);
+    }
+
+    sqlQuery += ` ORDER BY b.id;`;
+
+    const [rows] = await database.query<RawBookRow[]>(sqlQuery, queryParams);
+
     const formattedRows: Books[] = rows.map((row) => {
       let parsedGenres: string[] = [];
       if (typeof row.genres === 'string') {

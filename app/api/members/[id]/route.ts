@@ -26,7 +26,7 @@ export async function GET(
 
     const member = memberRows[0]
 
-    // 2. Run borrowed logs and purchase logs concurrently for better performance
+    // 2. Run borrowed logs, purchase logs, and UNIFIED history concurrently
     const borrowedPromise = database.query<(BorrowedBook & RowDataPacket)[]>(
       `SELECT 
           bl.id,
@@ -66,16 +66,45 @@ export async function GET(
       [id]
     )
 
-    // Await both queries at the same time
-    const [[borrowedRows], [purchaseRows]] = await Promise.all([
+    // UNION Query for Unified History
+    const historyPromise = database.query<RowDataPacket[]>(
+      `(SELECT 
+          'BORROW' as activity_type,
+          b.title as book_title,
+          bc.format,
+          bl.borrowed_at as activity_date,
+          bl.status as detail
+        FROM borrow_logs bl
+        JOIN book_copies bc ON bl.book_copy_id = bc.id
+        JOIN books b ON bc.book_id = b.id
+        WHERE bl.member_id = ?)
+       UNION
+       (SELECT 
+          'PURCHASE' as activity_type,
+          b.title as book_title,
+          bc.format,
+          pl.purchased_at as activity_date,
+          CONCAT('Qty: ', pl.quantity) as detail
+        FROM purchase_logs pl
+        JOIN book_copies bc ON pl.book_copy_id = bc.id
+        JOIN books b ON bc.book_id = b.id
+        WHERE pl.member_id = ?)
+       ORDER BY activity_date DESC`,
+      [id, id]
+    )
+
+    // Await all queries
+    const [[borrowedRows], [purchaseRows], [historyRows]] = await Promise.all([
       borrowedPromise, 
-      purchasePromise
+      purchasePromise,
+      historyPromise
     ])
 
     return NextResponse.json({
       member,
       borrowed: borrowedRows,
       purchased: purchaseRows,
+      history: historyRows
     })
   } catch (error) {
     console.error("Error fetching member profile:", error)

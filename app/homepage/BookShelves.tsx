@@ -16,8 +16,10 @@ export default function BookShelves({ memberId }: BookShelvesProps) {
   const [isLoading, setIsLoading] = useState(true)
   
   const [selectedGenres, setSelectedGenres] = useState<string[]>([])
+  const [excludeGenres, setExcludeGenres] = useState(false)
+  const [notBorrowedOnly, setNotBorrowedOnly] = useState(false)
   const [availableGenres, setAvailableGenres] = useState<string[]>([])
-  
+
   // Search states
   const [searchInput, setSearchInput] = useState("") 
   const [activeQuery, setActiveQuery] = useState("") 
@@ -49,18 +51,29 @@ export default function BookShelves({ memberId }: BookShelvesProps) {
     }
   }
 
-  async function getBooks(genres: string[], query: string, signal?: AbortSignal): Promise<Books[]> {
+  async function getBooks(genres: string[], isExcluded: boolean, isNotBorrowed: boolean, query: string, signal?: AbortSignal): Promise<Books[]> {
     try {
       let url = "/api/books"
-      
+      const params = new URLSearchParams()
+
+      if (isNotBorrowed) {
+        params.append("notBorrowed", "true")
+        params.append("memberId", memberId)
+      }
+
       if (query.trim() !== "") {
-        url = `/api/books/search?query=${encodeURIComponent(query)}`
+        params.append("query", query)
+        url = `/api/books/search?${params.toString()}`
       } 
       else if (genres.length > 0) {
-        const params = new URLSearchParams({ genres: genres.join(",") })
+        params.append("genres", genres.join(","))
+        params.append("exclude", isExcluded.toString())
         url = `/api/books/genresFilter?${params.toString()}`
       }
-      
+      else if (isNotBorrowed) {
+        url = `/api/books?${params.toString()}`
+      }
+
       const res = await fetch(url, { signal })
       if (!res.ok) throw new Error("Failed to fetch books")
       return await res.json()
@@ -79,8 +92,8 @@ export default function BookShelves({ memberId }: BookShelvesProps) {
   useEffect(() => {
     const controller = new AbortController()
     let isActive = true
-    
-    getBooks(selectedGenres, activeQuery, controller.signal).then((data) => {
+
+    getBooks(selectedGenres, excludeGenres, notBorrowedOnly, activeQuery, controller.signal).then((data) => {
       if (isActive) {
         setBooks(data)
         setIsLoading(false)
@@ -91,8 +104,7 @@ export default function BookShelves({ memberId }: BookShelvesProps) {
       isActive = false
       controller.abort()
     }
-  }, [selectedGenres, activeQuery])
-
+  }, [selectedGenres, excludeGenres, notBorrowedOnly, activeQuery])
   const toggleGenre = (genre: string) => {
     setIsLoading(true)
     setSelectedGenres((prev) => 
@@ -109,15 +121,17 @@ export default function BookShelves({ memberId }: BookShelvesProps) {
     setIsLoading(true)
     setActiveQuery(searchInput)
     setSelectedGenres([])
+    setExcludeGenres(false)
+    setNotBorrowedOnly(false)
   }
 
   return (
     <section>
-      <div className="mb-10 flex flex-col md:flex-row gap-4 items-center justify-between bg-slate-50 p-4 rounded-none border border-slate-200 shadow-sm">
+      <div className="mb-10 flex flex-col xl:flex-row gap-4 items-center justify-between bg-slate-50 p-4 rounded-none border border-slate-200 shadow-sm">
         
         {/* Search Form */}
-        <form onSubmit={handleSearch} className="flex w-full md:max-w-md gap-2">
-          <div className="relative flex-grow group">
+        <form onSubmit={handleSearch} className="flex w-full xl:max-w-md gap-2">
+          <div className="relative grow group">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
             <input
               type="text"
@@ -135,48 +149,82 @@ export default function BookShelves({ memberId }: BookShelvesProps) {
           </button>
         </form>
 
-        {/* Genre Dropdown */}
-        {availableGenres.length > 0 && (
-          <div className="relative w-full md:w-64" ref={dropdownRef}>
-            <button
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="w-full flex justify-between items-center px-4 py-2.5 bg-white border border-slate-200 rounded-none shadow-sm text-sm font-medium text-slate-700 hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
-            >
-              <div className="flex items-center gap-2">
-                <Filter className="w-4 h-4 text-slate-400" />
-                <span className="truncate">
-                  {selectedGenres.length === 0
-                    ? "All Genres"
-                    : `${selectedGenres.length} Genre${selectedGenres.length > 1 ? 's' : ''}`}
-                </span>
-              </div>
-              <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`} />
-            </button>
+        <div className="flex flex-col sm:flex-row items-center gap-4 w-full xl:w-auto">
+          {/* New Discovery Toggle (DIFFERENCE) */}
+          <button
+            onClick={() => {
+              setIsLoading(true)
+              setNotBorrowedOnly(!notBorrowedOnly)
+            }}
+            className={`flex items-center gap-2 px-4 py-2.5 border transition-all rounded-none text-xs font-bold uppercase tracking-widest ${notBorrowedOnly ? 'bg-slate-900 border-slate-900 text-white shadow-lg' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'}`}
+          >
+            <div className={`w-2 h-2 rounded-full ${notBorrowedOnly ? 'bg-blue-400 animate-pulse' : 'bg-slate-300'}`} />
+            New Discoveries
+          </button>
 
-            {isDropdownOpen && (
-              <div className="absolute z-20 mt-2 w-full bg-white border border-slate-200 rounded-none shadow-xl py-2 max-h-72 overflow-y-auto animate-in fade-in zoom-in duration-200">
-                {availableGenres.map((genre) => (
-                  <button
-                    key={genre}
-                    onClick={() => toggleGenre(genre)}
-                    className="w-full px-4 py-2.5 hover:bg-slate-50 flex items-center gap-3 transition-colors text-left"
-                  >
-                    <div className={`w-4 h-4 rounded-none border flex items-center justify-center transition-colors ${selectedGenres.includes(genre) ? 'bg-blue-600 border-blue-600' : 'border-slate-300 bg-white'}`}>
-                      {selectedGenres.includes(genre) && (
-                        <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                        </svg>
-                      )}
-                    </div>
-                    <span className={`text-sm ${selectedGenres.includes(genre) ? 'text-blue-700 font-semibold' : 'text-slate-600'}`}>
-                      {genre}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            )}
+          {/* Exclude Toggle */}
+          <div className="flex items-center gap-3 bg-white px-4 py-2 border border-slate-200 shadow-sm">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+              {excludeGenres ? "Excluding" : "Including"}
+            </span>
+            <button
+              onClick={() => {
+                setIsLoading(true)
+                setExcludeGenres(!excludeGenres)
+              }}
+              className={`relative inline-flex h-6 w-11 items-center rounded-none transition-colors focus:outline-none ${excludeGenres ? 'bg-red-500' : 'bg-blue-600'}`}
+            >
+              <span
+                className={`${
+                  excludeGenres ? 'translate-x-6' : 'translate-x-1'
+                } inline-block h-4 w-4 transform rounded-none bg-white transition-transform`}
+              />
+            </button>
           </div>
-        )}
+
+          {/* Genre Dropdown */}
+          {availableGenres.length > 0 && (
+            <div className="relative w-full sm:w-64" ref={dropdownRef}>
+              <button
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="w-full flex justify-between items-center px-4 py-2.5 bg-white border border-slate-200 rounded-none shadow-sm text-sm font-medium text-slate-700 hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
+              >
+                <div className="flex items-center gap-2">
+                  <Filter className="w-4 h-4 text-slate-400" />
+                  <span className="truncate">
+                    {selectedGenres.length === 0
+                      ? "All Genres"
+                      : `${selectedGenres.length} Genre${selectedGenres.length > 1 ? 's' : ''}`}
+                  </span>
+                </div>
+                <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {isDropdownOpen && (
+                <div className="absolute z-20 mt-2 w-full bg-white border border-slate-200 rounded-none shadow-xl py-2 max-h-72 overflow-y-auto animate-in fade-in zoom-in duration-200">
+                  {availableGenres.map((genre) => (
+                    <button
+                      key={genre}
+                      onClick={() => toggleGenre(genre)}
+                      className="w-full px-4 py-2.5 hover:bg-slate-50 flex items-center gap-3 transition-colors text-left"
+                    >
+                      <div className={`w-4 h-4 rounded-none border flex items-center justify-center transition-colors ${selectedGenres.includes(genre) ? (excludeGenres ? 'bg-red-500 border-red-500' : 'bg-blue-600 border-blue-600') : 'border-slate-300 bg-white'}`}>
+                        {selectedGenres.includes(genre) && (
+                          <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                          </svg>
+                        )}
+                      </div>
+                      <span className={`text-sm ${selectedGenres.includes(genre) ? (excludeGenres ? 'text-red-700 font-semibold' : 'text-blue-700 font-semibold') : 'text-slate-600'}`}>
+                        {genre}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Grid Rendering */}
