@@ -1,15 +1,12 @@
 import database from "@/lib/database/db";
 import { NextRequest, NextResponse } from "next/server";
-import { ResultSetHeader } from "mysql2";
+import { ResultSetHeader, RowDataPacket } from "mysql2";
 
 export async function PATCH(request: NextRequest) {
   try {
     // Parse the incoming JSON payload
     const body = await request.json();
     const { logId, status } = body;
-
-    console.log(typeof logId);
-    console.log(typeof status)
 
     // 1. Basic Validation
     if (!logId || !status) {
@@ -29,8 +26,6 @@ export async function PATCH(request: NextRequest) {
     }
 
     // 2. Execute the Database Update
-    // Using a CASE statement to automatically set returned_at to CURRENT_TIMESTAMP 
-    // only if the new status is 'returned'. Otherwise, it leaves it alone.
     const query = `
       UPDATE borrow_logs 
       SET 
@@ -42,14 +37,12 @@ export async function PATCH(request: NextRequest) {
       WHERE id = ?;
     `;
 
-    // Note: For UPDATE/INSERT/DELETE, mysql2 returns a ResultSetHeader, not an array of rows
     const [result] = await database.query<ResultSetHeader>(query, [
       status, 
-      status, // Passed twice for the SET clause and the CASE condition
+      status, 
       logId
     ]);
 
-    // 3. Verify the record existed
     if (result.affectedRows === 0) {
       return NextResponse.json(
         { error: `Borrow log with ID ${logId} not found.` },

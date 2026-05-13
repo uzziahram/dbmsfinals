@@ -75,7 +75,7 @@ function BorrowedBookItem({ book }: { book: BorrowedBook }) {
             </span>
           </div>
 
-          {status !== 'returned' && (
+          {status !== 'returned' && book.format !== 'hardcopy' && (
             <button
               onClick={handleReturn}
               disabled={isUpdating}
@@ -83,6 +83,12 @@ function BorrowedBookItem({ book }: { book: BorrowedBook }) {
             >
               {isUpdating ? "Processing..." : "Return Book"}
             </button>
+          )}
+
+          {status !== 'returned' && book.format === 'hardcopy' && (
+            <div className="w-full py-2 bg-amber-50 text-amber-600 text-[10px] font-bold uppercase rounded-none text-center border border-amber-100 px-1">
+              Physical Return Required
+            </div>
           )}
 
           {status === 'returned' && (
